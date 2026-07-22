@@ -1,13 +1,21 @@
 name: Plugin Publish Workflow
 
+# Builds the .difypkg on release and attaches it to that release.
+#
+# Promotion into the Dify catalog is deliberately manual: it means committing
+# the package to the Anakin-Inc/anakin-dify-plugins fork and opening a PR to
+# langgenius/dify-plugins. Automating that would require a personal access
+# token, because GITHUB_TOKEN cannot write to another repository -- and a token
+# that expires would break releases silently, months later, for a plugin that
+# ships roughly twice a year. See RELEASING.md for the promotion steps.
+
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
-# The catalog fork that receives the built package. `author` in manifest.yaml is
-# the Dify marketplace handle, not a GitHub owner, so it cannot be used here.
-env:
-  CATALOG_REPO: ${{ vars.DIFY_CATALOG_REPO || 'Anakin-Inc/anakin-dify-plugins' }}
+permissions:
+  contents: write # required to attach the package to the release
 
 jobs:
   publish:
@@ -16,99 +24,76 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download CLI tool
+      - name: Download the Dify plugin CLI
         run: |
-          mkdir -p $RUNNER_TEMP/bin
-          cd $RUNNER_TEMP/bin
-
-          wget https://github.com/langgenius/dify-plugin-daemon/releases/download/0.0.6/dify-plugin-linux-amd64
+          mkdir -p "$RUNNER_TEMP/bin"
+          cd "$RUNNER_TEMP/bin"
+          wget -q https://github.com/langgenius/dify-plugin-daemon/releases/download/0.0.6/dify-plugin-linux-amd64
           chmod +x dify-plugin-linux-amd64
-
-          echo "CLI tool location:"
-          pwd
           ls -la dify-plugin-linux-amd64
 
-      - name: Get basic info from manifest
-        id: get_basic_info
+      - name: Read manifest
+        id: info
         run: |
           PLUGIN_NAME=$(grep "^name:" manifest.yaml | cut -d' ' -f2)
-          echo "Plugin name: $PLUGIN_NAME"
-          echo "plugin_name=$PLUGIN_NAME" >> $GITHUB_OUTPUT
-
           VERSION=$(grep "^version:" manifest.yaml | cut -d' ' -f2)
-          echo "Plugin version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-          # If the author's name is not your github username, you can change the author here
           AUTHOR=$(grep "^author:" manifest.yaml | cut -d' ' -f2)
-          echo "Plugin author: $AUTHOR"
-          echo "author=$AUTHOR" >> $GITHUB_OUTPUT
+          echo "plugin_name=$PLUGIN_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "author=$AUTHOR" >> "$GITHUB_OUTPUT"
+          echo "name=$PLUGIN_NAME version=$VERSION author=$AUTHOR"
 
-      - name: Package Plugin
+      - name: Fail if the release tag disagrees with the manifest
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ steps.info.outputs.version }}
+        run: |
+          # Catches the easy mistake of tagging v0.0.4 while manifest.yaml still
+          # says 0.0.3 -- the catalog would then carry a mislabelled package.
+          if [ "${TAG#v}" != "$VERSION" ]; then
+            echo "::error::release tag '$TAG' does not match manifest version '$VERSION'"
+            exit 1
+          fi
+          echo "tag and manifest agree on $VERSION"
+
+      - name: Package plugin
         id: package
         run: |
-          cd $GITHUB_WORKSPACE
-          PACKAGE_NAME="${{ steps.get_basic_info.outputs.plugin_name }}-${{ steps.get_basic_info.outputs.version }}.difypkg"
-          $RUNNER_TEMP/bin/dify-plugin-linux-amd64 plugin package . -o "$PACKAGE_NAME"
-
-          echo "Package result:"
+          PACKAGE_NAME="${{ steps.info.outputs.plugin_name }}-${{ steps.info.outputs.version }}.difypkg"
+          "$RUNNER_TEMP/bin/dify-plugin-linux-amd64" plugin package . -o "$PACKAGE_NAME"
           ls -la "$PACKAGE_NAME"
-          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
 
-          echo "\nFull file path:"
-          pwd
-          echo "\nDirectory structure:"
-          tree || ls -R
-
-      - name: Checkout target repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.CATALOG_REPO }}
-          path: dify-plugins
-          token: ${{ secrets.PLUGIN_ACTION }}
-          fetch-depth: 1
-          persist-credentials: true
-
-      - name: Prepare and create PR
-        run: |
-          PACKAGE_NAME="${{ steps.get_basic_info.outputs.plugin_name }}-${{ steps.get_basic_info.outputs.version }}.difypkg"
-          mkdir -p dify-plugins/${{ steps.get_basic_info.outputs.author }}/${{ steps.get_basic_info.outputs.plugin_name }}
-          mv "$PACKAGE_NAME" dify-plugins/${{ steps.get_basic_info.outputs.author }}/${{ steps.get_basic_info.outputs.plugin_name }}/
-
-          cd dify-plugins
-
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-
-          git fetch origin main
-          git checkout main
-          git pull origin main
-
-          BRANCH_NAME="bump-${{ steps.get_basic_info.outputs.plugin_name }}-plugin-${{ steps.get_basic_info.outputs.version }}"
-          git checkout -b "$BRANCH_NAME"
-
-          git add .
-          git commit -m "bump ${{ steps.get_basic_info.outputs.plugin_name }} plugin to version ${{ steps.get_basic_info.outputs.version }}"
-
-          git push -u origin "$BRANCH_NAME" --force
-
-          git branch -a
-          echo "Waiting for branch to sync..."
-          sleep 10  # Wait 10 seconds for branch sync
-
-      - name: Create PR via GitHub API
+      - name: Attach package to the release
+        if: github.event_name == 'release'
         env:
-          # How to config the token:
-          # 1. Profile -> Settings -> Developer settings -> Personal access tokens -> Generate new token (with repo scope) -> Copy the token
-          # 2. Go to the target repository -> Settings -> Secrets and variables -> Actions -> New repository secret -> Add the token as PLUGIN_ACTION
-          GH_TOKEN: ${{ secrets.PLUGIN_ACTION }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
-            --repo langgenius/dify-plugins \
-            --head "${CATALOG_REPO%%/*}:bump-${{ steps.get_basic_info.outputs.plugin_name }}-plugin-${{ steps.get_basic_info.outputs.version }}" \
-            --base main \
-            --title "bump ${{ steps.get_basic_info.outputs.plugin_name }} plugin to version ${{ steps.get_basic_info.outputs.version }}" \
-            --body "bump ${{ steps.get_basic_info.outputs.plugin_name }} plugin package to version ${{ steps.get_basic_info.outputs.version }}
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "${{ steps.package.outputs.package_name }}" --clobber
 
-            Changes:
-            - Updated plugin package file" || echo "PR already exists or creation skipped." # Handle cases where PR already exists
+      - name: Upload package as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.package_name }}
+          path: ${{ steps.package.outputs.package_name }}
+          if-no-files-found: error
+
+      - name: Next steps
+        env:
+          PKG: ${{ steps.package.outputs.package_name }}
+          AUTHOR: ${{ steps.info.outputs.author }}
+          NAME: ${{ steps.info.outputs.plugin_name }}
+        run: |
+          {
+            echo "### Built \`$PKG\`"
+            echo ""
+            echo "To publish it to the Dify Marketplace:"
+            echo ""
+            echo "1. Download the package from this release"
+            echo "2. Commit it to \`Anakin-Inc/anakin-dify-plugins\` at \`$AUTHOR/$NAME/$PKG\`"
+            echo "3. Open a PR from that fork to \`langgenius/dify-plugins\`"
+            echo ""
+            echo "See RELEASING.md for the full procedure."
+          } >> "$GITHUB_STEP_SUMMARY"

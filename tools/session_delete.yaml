@@ -1,0 +1,34 @@
+identity:
+  name: "session_delete"
+  author: "anakin"
+  label:
+    en_US: "Delete Session"
+    zh_Hans: "删除会话"
+    pt_BR: "Excluir Sessão"
+    ja_JP: "セッション削除"
+description:
+  human:
+    en_US: "Permanently delete a saved browser session and its encrypted login data. Irreversible."
+    zh_Hans: "永久删除已保存的浏览器会话及其加密的登录数据。此操作不可撤销。"
+    pt_BR: "Exclua permanentemente uma sessão de navegador salva e seus dados de login criptografados. Irreversível."
+    ja_JP: "保存済みのブラウザセッションとその暗号化されたログインデータを完全に削除します。元に戻すことはできません。"
+  llm: "Permanently delete a saved browser session and its encrypted login data. Irreversible — the user must log in again through the dashboard to recreate it, and any monitors or requests referencing this session_id will lose authenticated access. Find ids with session_list."
+parameters:
+  - name: id
+    type: string
+    required: true
+    label:
+      en_US: "Session ID"
+      zh_Hans: "会话ID"
+      pt_BR: "ID da Sessão"
+      ja_JP: "セッションID"
+    human_description:
+      en_US: "The session ID to delete, from session_list"
+      zh_Hans: "要删除的会话ID，来自session_list"
+      pt_BR: "O ID da sessão a ser excluída, obtido em session_list"
+      ja_JP: "削除するセッションID（session_listから取得）"
+    llm_description: "The session ID to delete, from session_list."
+    form: llm
+extra:
+  python:
+    source: tools/session_delete.py

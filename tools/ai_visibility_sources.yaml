@@ -1,0 +1,19 @@
+identity:
+  name: "ai_visibility_sources"
+  author: "anakin"
+  label:
+    en_US: "AI Visibility Sources"
+    zh_Hans: "AI可见性引擎列表"
+    pt_BR: "Fontes de Visibilidade IA"
+    ja_JP: "AI可視性ソース一覧"
+description:
+  human:
+    en_US: "List the AI answer engines available to ai_visibility_search, each with its slug and display label."
+    zh_Hans: "列出可用于ai_visibility_search的AI回答引擎，包含各自的标识和显示名称。"
+    pt_BR: "Liste os mecanismos de resposta de IA disponíveis para ai_visibility_search, cada um com seu slug e rótulo de exibição."
+    ja_JP: "ai_visibility_searchで利用可能なAI回答エンジンを、それぞれのスラッグと表示名とともに一覧表示します。"
+  llm: "List the AI answer engines available to ai_visibility_search, each with its slug (what you pass as sources) and display label. Call this when you need to query a subset of engines or check what is currently enabled."
+parameters: []
+extra:
+  python:
+    source: tools/ai_visibility_sources.py

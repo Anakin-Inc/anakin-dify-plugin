@@ -1,0 +1,49 @@
+identity:
+  name: "monitor_control"
+  author: "anakin"
+  label:
+    en_US: "Control Monitor"
+    zh_Hans: "控制监控"
+    pt_BR: "Controlar Monitor"
+    ja_JP: "モニター制御"
+description:
+  human:
+    en_US: "Control an existing website monitor: pause, resume, trigger an immediate check, or permanently delete it."
+    zh_Hans: "控制现有的网站监控：暂停、恢复、立即触发一次检查，或永久删除。"
+    pt_BR: "Controle um monitor de site existente: pausar, retomar, disparar uma verificação imediata ou excluí-lo permanentemente."
+    ja_JP: "既存のウェブサイトモニターを制御します：一時停止、再開、即時チェックの実行、または完全な削除が可能です。"
+  llm: "Control an existing website monitor: \"pause\" stops scheduled checks, \"resume\" restarts them (may hit the plan's active-monitor cap), \"run_now\" triggers an immediate out-of-schedule check (billed like a normal check), and \"delete\" permanently removes the monitor and its history. Use monitor_list to find the id."
+parameters:
+  - name: id
+    type: string
+    required: true
+    label:
+      en_US: "Monitor ID"
+      zh_Hans: "监控ID"
+      pt_BR: "ID do Monitor"
+      ja_JP: "モニターID"
+    human_description:
+      en_US: "The monitor ID, from monitor_list or monitor_create"
+      zh_Hans: "监控ID，来自monitor_list或monitor_create"
+      pt_BR: "O ID do monitor, obtido em monitor_list ou monitor_create"
+      ja_JP: "モニターID（monitor_listまたはmonitor_createから取得）"
+    llm_description: "The monitor ID, from monitor_list or monitor_create."
+    form: llm
+  - name: action
+    type: string
+    required: true
+    label:
+      en_US: "Action"
+      zh_Hans: "操作"
+      pt_BR: "Ação"
+      ja_JP: "操作"
+    human_description:
+      en_US: "What to do: \"pause\", \"resume\", \"run_now\", or \"delete\""
+      zh_Hans: "要执行的操作：\"pause\"（暂停）、\"resume\"（恢复）、\"run_now\"（立即运行）或\"delete\"（删除）"
+      pt_BR: "O que fazer: \"pause\", \"resume\", \"run_now\" ou \"delete\""
+      ja_JP: "実行する操作：「pause」「resume」「run_now」「delete」のいずれか"
+    llm_description: "What to do with the monitor: \"pause\", \"resume\", \"run_now\" (immediate out-of-schedule check), or \"delete\" (permanent, removes history too)."
+    form: llm
+extra:
+  python:
+    source: tools/monitor_control.py

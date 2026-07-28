@@ -1,0 +1,158 @@
+identity:
+  name: "crawl"
+  author: "anakin"
+  label:
+    en_US: "Site Crawler"
+    zh_Hans: "网站爬取器"
+    pt_BR: "Rastreador de Site"
+    ja_JP: "サイトクローラー"
+description:
+  human:
+    en_US: "Bulk-fetch markdown across a site. Returns an array of pages, each with markdown content and per-page status. Use for catalog ingestion or building a site-wide corpus."
+    zh_Hans: "批量抓取整个网站的markdown内容。返回页面数组，每个页面包含markdown内容和状态。适用于目录采集或构建全站语料库。"
+    pt_BR: "Busca markdown em massa em todo um site. Retorna um array de páginas, cada uma com conteúdo markdown e status. Use para ingestão de catálogos ou construção de um corpus de todo o site."
+    ja_JP: "サイト全体のmarkdownを一括取得します。各ページのmarkdownコンテンツとステータスを含むページの配列を返します。カタログの取り込みやサイト全体のコーパス構築に使用します。"
+  llm: "Crawl a site and fetch markdown content from multiple pages at once. Use this when you need content from many pages under a domain, such as catalog ingestion or building a RAG corpus."
+parameters:
+  - name: url
+    type: string
+    required: true
+    label:
+      en_US: "URL"
+      zh_Hans: "URL"
+      pt_BR: "URL"
+      ja_JP: "URL"
+    human_description:
+      en_US: "The starting URL to crawl from"
+      zh_Hans: "开始爬取的起始URL"
+      pt_BR: "A URL inicial para rastrear"
+      ja_JP: "クロールを開始するURL"
+    llm_description: "The starting URL to crawl from."
+    form: llm
+  - name: max_pages
+    type: number
+    required: false
+    default: 10
+    label:
+      en_US: "Max Pages"
+      zh_Hans: "最大页数"
+      pt_BR: "Máximo de Páginas"
+      ja_JP: "最大ページ数"
+    human_description:
+      en_US: "Hard cap on pages fetched (default: 10)"
+      zh_Hans: "抓取页面数的硬性上限（默认：10）"
+      pt_BR: "Limite rígido de páginas buscadas (padrão: 10)"
+      ja_JP: "取得するページ数の上限（デフォルト：10）"
+    llm_description: "Maximum number of pages to fetch during the crawl."
+    form: form
+  - name: depth
+    type: number
+    required: false
+    default: 1
+    label:
+      en_US: "Depth"
+      zh_Hans: "深度"
+      pt_BR: "Profundidade"
+      ja_JP: "深さ"
+    human_description:
+      en_US: "Link-hops from the starting URL to follow (default: 1)"
+      zh_Hans: "从起始URL开始跟踪的链接跳数（默认：1）"
+      pt_BR: "Saltos de link a partir da URL inicial a seguir (padrão: 1)"
+      ja_JP: "起点URLから何ホップ先までリンクをたどるか（デフォルト：1）"
+    llm_description: "Number of link-hops from the starting URL to follow."
+    form: form
+  - name: country
+    type: string
+    required: false
+    default: "us"
+    label:
+      en_US: "Country"
+      zh_Hans: "国家"
+      pt_BR: "País"
+      ja_JP: "国"
+    human_description:
+      en_US: "Country code for proxy routing (default: us)"
+      zh_Hans: "代理路由的国家代码（默认：us）"
+      pt_BR: "Código do país para roteamento de proxy (padrão: us)"
+      ja_JP: "プロキシルーティングの国コード（デフォルト：us）"
+    llm_description: "Two-letter country code for proxy egress routing."
+    form: form
+  - name: use_browser
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Use Browser"
+      zh_Hans: "使用浏览器"
+      pt_BR: "Usar Navegador"
+      ja_JP: "ブラウザを使用"
+    human_description:
+      en_US: "Render each page in a headless browser, for JavaScript-heavy sites"
+      zh_Hans: "使用无头浏览器渲染每个页面，适用于JavaScript密集型网站"
+      pt_BR: "Renderizar cada página em um navegador headless, para sites com muito JavaScript"
+      ja_JP: "各ページをヘッドレスブラウザでレンダリングする（JavaScript重視のサイト向け）"
+    llm_description: "Set to true to render each page with a headless browser, needed for JavaScript-rendered sites."
+    form: form
+  - name: include_patterns
+    type: string
+    required: false
+    label:
+      en_US: "Include Patterns"
+      zh_Hans: "包含模式"
+      pt_BR: "Padrões de Inclusão"
+      ja_JP: "含めるパターン"
+    human_description:
+      en_US: "JSON array string of glob/regex patterns; only matching URLs are fetched"
+      zh_Hans: "glob/正则表达式模式的JSON数组字符串；仅抓取匹配的URL"
+      pt_BR: "String de array JSON com padrões glob/regex; apenas URLs correspondentes são buscadas"
+      ja_JP: "glob/正規表現パターンのJSON配列文字列。一致するURLのみを取得します"
+    llm_description: "Optional JSON array string of glob or regex patterns. Only URLs matching at least one pattern are fetched, e.g. [\"/blog/*\", \"/docs/*\"]."
+    form: form
+  - name: exclude_patterns
+    type: string
+    required: false
+    label:
+      en_US: "Exclude Patterns"
+      zh_Hans: "排除模式"
+      pt_BR: "Padrões de Exclusão"
+      ja_JP: "除外パターン"
+    human_description:
+      en_US: "JSON array string of glob/regex patterns; matching URLs are skipped"
+      zh_Hans: "glob/正则表达式模式的JSON数组字符串；匹配的URL将被跳过"
+      pt_BR: "String de array JSON com padrões glob/regex; URLs correspondentes são ignoradas"
+      ja_JP: "glob/正規表現パターンのJSON配列文字列。一致するURLはスキップされます"
+    llm_description: "Optional JSON array string of glob or regex patterns. URLs matching any pattern are skipped, e.g. [\"/admin/*\"]."
+    form: form
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: "Session ID"
+      zh_Hans: "会话ID"
+      pt_BR: "ID da Sessão"
+      ja_JP: "セッションID"
+    human_description:
+      en_US: "Browser session ID for crawling authenticated pages"
+      zh_Hans: "用于爬取需要身份验证页面的浏览器会话ID"
+      pt_BR: "ID de sessão do navegador para rastrear páginas autenticadas"
+      ja_JP: "認証が必要なページをクロールするためのブラウザセッションID"
+    llm_description: "Browser session ID for accessing authenticated or logged-in pages. Get this from session_list."
+    form: form
+  - name: session_name
+    type: string
+    required: false
+    label:
+      en_US: "Session Name"
+      zh_Hans: "会话名称"
+      pt_BR: "Nome da Sessão"
+      ja_JP: "セッション名"
+    human_description:
+      en_US: "Named browser session to use instead of a session ID"
+      zh_Hans: "使用命名的浏览器会话代替会话ID"
+      pt_BR: "Sessão de navegador nomeada para usar em vez de um ID de sessão"
+      ja_JP: "セッションIDの代わりに使用する名前付きブラウザセッション"
+    llm_description: "Named browser session to use for authenticated crawling, as an alternative to session_id."
+    form: form
+extra:
+  python:
+    source: tools/crawl.py

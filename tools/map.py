@@ -8,56 +8,44 @@ from dify_plugin.entities.tool import ToolInvokeMessage
 
 
 BASE_URL = "https://api.anakin.io/v1"
-MAX_POLL_ATTEMPTS = 90
-POLL_INTERVAL = 5
+MAX_POLL_ATTEMPTS = 60
+POLL_INTERVAL = 3
 
 
-class BatchScraperTool(Tool):
+class MapTool(Tool):
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
         api_key = self.runtime.credentials.get("api_key")
 
-        urls_str = tool_parameters.get("urls")
-        if not urls_str:
-            yield self.create_text_message("Error: URLs are required")
+        url = tool_parameters.get("url")
+        if not url:
+            yield self.create_text_message("Error: URL is required")
             return
 
-        # Parse comma-separated URLs
-        urls = [url.strip() for url in urls_str.split(",") if url.strip()]
-
-        if not urls:
-            yield self.create_text_message("Error: No valid URLs provided")
-            return
-
-        if len(urls) > 10:
-            yield self.create_text_message("Error: Maximum 10 URLs allowed per batch")
-            return
-
-        country = tool_parameters.get("country", "us")
+        limit = tool_parameters.get("limit", 100)
+        depth = tool_parameters.get("depth", 2)
+        limit_per_level = tool_parameters.get("limit_per_level", 100)
+        include_subdomains = tool_parameters.get("include_subdomains", False)
+        include_external_links = tool_parameters.get("include_external_links", False)
         use_browser = tool_parameters.get("use_browser", False)
-        generate_json = tool_parameters.get("generate_json", False)
-        session_id = tool_parameters.get("session_id")
-        session_name = tool_parameters.get("session_name")
-        force_fresh = tool_parameters.get("force_fresh", False)
+        search = tool_parameters.get("search")
 
         payload = {
-            "urls": urls,
-            "country": country,
-            "useBrowser": use_browser,
-            "generateJson": generate_json,
-            "forceFresh": force_fresh
+            "url": url,
+            "limit": int(limit),
+            "depth": int(depth),
+            "limitPerLevel": int(limit_per_level),
+            "includeSubdomains": include_subdomains,
+            "includeExternalLinks": include_external_links,
+            "useBrowser": use_browser
         }
-
-        # Add sessionId/sessionName only if provided (for authenticated pages)
-        if session_id:
-            payload["sessionId"] = session_id
-        if session_name:
-            payload["sessionName"] = session_name
+        if search:
+            payload["search"] = search
 
         try:
             with httpx.Client(timeout=30) as client:
-                # Submit batch job
+                # Submit the mapping job
                 response = client.post(
-                    f"{BASE_URL}/url-scraper/batch",
+                    f"{BASE_URL}/map",
                     headers={
                         "X-API-Key": api_key,
                         "Content-Type": "application/json",
@@ -88,7 +76,7 @@ class BatchScraperTool(Tool):
                     time.sleep(POLL_INTERVAL)
 
                     result_response = client.get(
-                        f"{BASE_URL}/url-scraper/{job_id}",
+                        f"{BASE_URL}/map/{job_id}",
                         headers={"X-API-Key": api_key, "X-Source": "dify"}
                     )
 
@@ -103,10 +91,10 @@ class BatchScraperTool(Tool):
                         return
                     elif status == "failed":
                         error = result.get("error", "Unknown error")
-                        yield self.create_text_message(f"Batch scraping failed: {error}")
+                        yield self.create_text_message(f"Mapping failed: {error}")
                         return
 
-                yield self.create_text_message("Error: Batch job timed out. Please try again.")
+                yield self.create_text_message("Error: Job timed out. Please try again.")
 
         except httpx.TimeoutException:
             yield self.create_text_message("Error: Request timeout")

@@ -1,0 +1,94 @@
+identity:
+  name: "wire_login"
+  author: "anakin"
+  label:
+    en_US: "Wire Login"
+    zh_Hans: "Wire登录"
+    pt_BR: "Login Wire"
+    ja_JP: "Wireログイン"
+description:
+  human:
+    en_US: "Sign in to a credentials-mode Wire site and get a credential_id usable immediately with wire_read_action / wire_write_action. The password is never stored, only the encrypted session."
+    zh_Hans: "登录支持凭证模式的Wire网站，获取可立即用于wire_read_action/wire_write_action的credential_id。密码不会被存储，仅存储加密后的会话。"
+    pt_BR: "Faça login em um site Wire com modo de credenciais e obtenha um credential_id utilizável imediatamente com wire_read_action / wire_write_action. A senha nunca é armazenada, apenas a sessão criptografada."
+    ja_JP: "資格情報モードのWireサイトにサインインし、wire_read_action / wire_write_actionですぐに使用できるcredential_idを取得します。パスワードは保存されず、暗号化されたセッションのみが保存されます。"
+  llm: "Sign in to a credentials-mode site and get a credential_id usable immediately with wire_read_action / wire_write_action. Provide the catalog_slug and login params (the fields that catalog's login schema defines, e.g. email/password — see wire_catalog's login_input_schema). Only needed for actions whose auth_mode is \"required\", and only for catalogs that support password sign-in."
+parameters:
+  - name: catalog_slug
+    type: string
+    required: true
+    label:
+      en_US: "Catalog Slug"
+      zh_Hans: "目录标识"
+      pt_BR: "Slug do Catálogo"
+      ja_JP: "カタログスラッグ"
+    human_description:
+      en_US: "The catalog to sign in to (e.g. \"amazon\")"
+      zh_Hans: "要登录的目录（例如\"amazon\"）"
+      pt_BR: "O catálogo para fazer login (por exemplo, \"amazon\")"
+      ja_JP: "サインインするカタログ（例：「amazon」）"
+    llm_description: "The catalog slug to sign in to, e.g. \"amazon\". Find valid slugs via wire_catalog."
+    form: llm
+  - name: params
+    type: string
+    required: false
+    label:
+      en_US: "Login Parameters"
+      zh_Hans: "登录参数"
+      pt_BR: "Parâmetros de Login"
+      ja_JP: "ログインパラメータ"
+    human_description:
+      en_US: "JSON string of login fields defined by the catalog (e.g. email/password)"
+      zh_Hans: "目录定义的登录字段的JSON字符串（例如email/password）"
+      pt_BR: "String JSON com os campos de login definidos pelo catálogo (por exemplo, email/senha)"
+      ja_JP: "カタログで定義されたログインフィールドのJSON文字列（例：email/password）"
+    llm_description: "JSON string of login fields defined by the catalog's login_input_schema (e.g. {\"email\": \"...\", \"password\": \"...\"}). Learn field names from wire_catalog."
+    form: form
+  - name: identity_name
+    type: string
+    required: false
+    label:
+      en_US: "Identity Name"
+      zh_Hans: "身份名称"
+      pt_BR: "Nome da Identidade"
+      ja_JP: "アイデンティティ名"
+    human_description:
+      en_US: "Optional name for the resulting identity; required when using a 1Password locator"
+      zh_Hans: "生成身份的可选名称；使用1Password定位器时为必填项"
+      pt_BR: "Nome opcional para a identidade resultante; obrigatório ao usar um localizador do 1Password"
+      ja_JP: "生成されるアイデンティティの任意名。1Passwordロケーターを使用する場合は必須"
+    llm_description: "Optional name for the resulting identity. Derived from params in password mode; required when using source_id/source_ref."
+    form: form
+  - name: source_id
+    type: string
+    required: false
+    label:
+      en_US: "Source ID"
+      zh_Hans: "来源ID"
+      pt_BR: "ID de Origem"
+      ja_JP: "ソースID"
+    human_description:
+      en_US: "Optional 1Password identity-source ID, an alternative to params"
+      zh_Hans: "可选的1Password身份来源ID，作为params的替代方式"
+      pt_BR: "ID de origem de identidade opcional do 1Password, uma alternativa aos params"
+      ja_JP: "任意の1Passwordアイデンティティソースid（paramsの代替）"
+    llm_description: "Optional 1Password identity-source ID, an alternative to params."
+    form: form
+  - name: source_ref
+    type: string
+    required: false
+    label:
+      en_US: "Source Reference"
+      zh_Hans: "来源引用"
+      pt_BR: "Referência de Origem"
+      ja_JP: "ソース参照"
+    human_description:
+      en_US: "JSON string of the 1Password item locator ({vault_id, item_id, fields}), used with source_id"
+      zh_Hans: "1Password项目定位器的JSON字符串（{vault_id, item_id, fields}），与source_id配合使用"
+      pt_BR: "String JSON do localizador de item do 1Password ({vault_id, item_id, fields}), usado com source_id"
+      ja_JP: "1Passwordアイテムロケーターのjson文字列（{vault_id, item_id, fields}）。source_idと併用します"
+    llm_description: "Optional JSON string of the 1Password item locator {vault_id, item_id, fields}, used together with source_id instead of params."
+    form: form
+extra:
+  python:
+    source: tools/wire_login.py

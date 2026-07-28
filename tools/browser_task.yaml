@@ -1,0 +1,109 @@
+identity:
+  name: "browser_task"
+  author: "anakin"
+  label:
+    en_US: "Browser Task"
+    zh_Hans: "浏览器任务"
+    pt_BR: "Tarefa de Navegador"
+    ja_JP: "ブラウザタスク"
+description:
+  human:
+    en_US: "Run a natural-language task in a real cloud browser driven by an AI agent: it navigates, clicks, types, scrolls, and extracts on your behalf."
+    zh_Hans: "在由AI代理驱动的真实云端浏览器中执行自然语言任务：代理会代表您进行导航、点击、输入、滚动和提取。"
+    pt_BR: "Execute uma tarefa em linguagem natural em um navegador em nuvem real controlado por um agente de IA: ele navega, clica, digita, rola e extrai em seu nome."
+    ja_JP: "AIエージェントが操作する実際のクラウドブラウザで、自然言語のタスクを実行します。ナビゲート、クリック、入力、スクロール、抽出を代わりに行います。"
+  llm: "Run a natural-language task in a real cloud browser driven by an AI agent (\"find the cheapest 65-inch TV on this site and list its specs\", \"fill the contact form with...\"). Use when scrape cannot do the job (multi-step flows, interactions, complex navigation) and no Wire action covers the site (check wire_discover first — Wire actions are faster and cheaper). Async; runs up to ~5 minutes and this tool polls to completion. For login-protected tasks pass session_id from session_list — never put passwords in the prompt. Supply output_schema to get structured JSON back. It does not execute payments or transfer funds; such tasks are refused server-side."
+parameters:
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: "Prompt"
+      zh_Hans: "任务指令"
+      pt_BR: "Prompt"
+      ja_JP: "プロンプト"
+    human_description:
+      en_US: "The task in natural language. Be specific about the goal and what to return."
+      zh_Hans: "以自然语言描述的任务。请明确说明目标以及需要返回的内容。"
+      pt_BR: "A tarefa em linguagem natural. Seja específico sobre o objetivo e o que deve ser retornado."
+      ja_JP: "自然言語によるタスク内容。目標と返してほしい内容を具体的に記述してください"
+    llm_description: "The task in natural language. Be specific about the goal and what to return. Never include passwords or secrets — use session_id for authenticated sites."
+    form: llm
+  - name: url
+    type: string
+    required: false
+    label:
+      en_US: "URL"
+      zh_Hans: "URL"
+      pt_BR: "URL"
+      ja_JP: "URL"
+    human_description:
+      en_US: "Navigate here before starting the task"
+      zh_Hans: "开始任务前先导航到此URL"
+      pt_BR: "Navegue até aqui antes de iniciar a tarefa"
+      ja_JP: "タスク開始前にこのURLに移動します"
+    llm_description: "Navigate here before starting. Omit to let the agent follow URLs named in the prompt."
+    form: form
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: "Session ID"
+      zh_Hans: "会话ID"
+      pt_BR: "ID da Sessão"
+      ja_JP: "セッションID"
+    human_description:
+      en_US: "Saved browser-session ID so the task runs logged in"
+      zh_Hans: "已保存的浏览器会话ID，使任务以登录状态运行"
+      pt_BR: "ID de sessão de navegador salva para que a tarefa seja executada logada"
+      ja_JP: "タスクをログイン状態で実行するための保存済みブラウザセッションID"
+    llm_description: "Saved browser-session ID (from session_list) so the task runs logged in."
+    form: form
+  - name: max_steps
+    type: number
+    required: false
+    label:
+      en_US: "Max Steps"
+      zh_Hans: "最大步数"
+      pt_BR: "Máximo de Passos"
+      ja_JP: "最大ステップ数"
+    human_description:
+      en_US: "Cap on agent steps (navigation/click/type actions)"
+      zh_Hans: "代理操作步数上限（导航/点击/输入等动作）"
+      pt_BR: "Limite de passos do agente (ações de navegação/clique/digitação)"
+      ja_JP: "エージェントのステップ数（ナビゲーション/クリック/入力操作）の上限"
+    llm_description: "Cap on agent steps (navigation/click/type actions)."
+    form: form
+  - name: timeout_ms
+    type: number
+    required: false
+    label:
+      en_US: "Timeout (ms)"
+      zh_Hans: "超时时间（毫秒）"
+      pt_BR: "Tempo Limite (ms)"
+      ja_JP: "タイムアウト（ミリ秒）"
+    human_description:
+      en_US: "Task timeout in milliseconds (server caps runs at ~330s regardless)"
+      zh_Hans: "任务超时时间（毫秒）（无论如何服务器都会将运行时间限制在约330秒）"
+      pt_BR: "Tempo limite da tarefa em milissegundos (o servidor limita as execuções a ~330s de qualquer forma)"
+      ja_JP: "タスクのタイムアウト（ミリ秒）。サーバー側では実行時間が常に約330秒に制限されます"
+    llm_description: "Task timeout in milliseconds. The server caps runs at roughly 330 seconds regardless."
+    form: form
+  - name: output_schema
+    type: string
+    required: false
+    label:
+      en_US: "Output Schema"
+      zh_Hans: "输出架构"
+      pt_BR: "Esquema de Saída"
+      ja_JP: "出力スキーマ"
+    human_description:
+      en_US: "JSON Schema string for the result; the agent returns structured data conforming to it"
+      zh_Hans: "结果的JSON Schema字符串；代理将返回符合该结构的数据"
+      pt_BR: "String de JSON Schema para o resultado; o agente retorna dados estruturados em conformidade com ele"
+      ja_JP: "結果のJSON Schema文字列。エージェントはこれに準拠した構造化データを返します"
+    llm_description: "Optional JSON Schema string describing the desired result shape. The agent returns structured data conforming to it."
+    form: form
+extra:
+  python:
+    source: tools/browser_task.py

@@ -29,6 +29,37 @@ parameters:
       ja_JP: "調査する研究質問またはトピック"
     llm_description: "The research question or topic to deeply investigate. This triggers a comprehensive multi-stage research process."
     form: llm
+  - name: use_browser
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: "Use Browser"
+      zh_Hans: "使用浏览器"
+      pt_BR: "Usar Navegador"
+      ja_JP: "ブラウザを使用"
+    human_description:
+      en_US: "Use a headless browser to scrape citation sources (default: true)"
+      zh_Hans: "使用无头浏览器抓取引用来源（默认：true）"
+      pt_BR: "Usar um navegador headless para raspar fontes de citação (padrão: true)"
+      ja_JP: "引用元のスクレイピングにヘッドレスブラウザを使用する（デフォルト：true）"
+    llm_description: "Whether to use a headless browser when scraping citation sources. Defaults to true; set false for faster, lighter-weight research."
+    form: form
+  - name: schema
+    type: string
+    required: false
+    label:
+      en_US: "Data Schema"
+      zh_Hans: "数据架构"
+      pt_BR: "Esquema de Dados"
+      ja_JP: "データスキーマ"
+    human_description:
+      en_US: "JSON schema describing the structured data to extract from the research"
+      zh_Hans: "描述从研究中提取的结构化数据的JSON架构"
+      pt_BR: "Esquema JSON que descreve os dados estruturados a serem extraídos da pesquisa"
+      ja_JP: "調査から抽出する構造化データを記述するJSONスキーマ"
+    llm_description: "Optional JSON schema string. When provided, the research pipeline extracts structured data matching this shape in addition to the summary."
+    form: form
 extra:
   python:
     source: tools/agentic_search.py

@@ -1,0 +1,50 @@
+identity:
+  name: "wire_discover"
+  author: "anakin"
+  label:
+    en_US: "Wire Discover"
+    zh_Hans: "Wire动作发现"
+    pt_BR: "Descobrir Ações Wire"
+    ja_JP: "Wireアクション検索"
+description:
+  human:
+    en_US: "Find Wire actions for a task from a natural-language intent. Wire is Anakin's catalog of pre-built automation actions across hundreds of sites (Amazon, Walmart, LinkedIn, and others). Returns ranked candidate actions with their action_id, type (read/write), params, and cost."
+    zh_Hans: "根据自然语言意图查找可用于任务的Wire动作。Wire是Anakin预构建的自动化动作目录，覆盖数百个网站（亚马逊、沃尔玛、LinkedIn等）。返回带有action_id、类型（读/写）、参数和成本的候选动作排名列表。"
+    pt_BR: "Encontre ações Wire para uma tarefa a partir de uma intenção em linguagem natural. Wire é o catálogo da Anakin de ações de automação pré-construídas em centenas de sites (Amazon, Walmart, LinkedIn e outros). Retorna ações candidatas classificadas com seu action_id, tipo (leitura/escrita), parâmetros e custo."
+    ja_JP: "自然言語の意図から、タスクに使用できるWireアクションを検索します。Wireは、Amazon、Walmart、LinkedInなど数百のサイトにまたがる、Anakinの事前構築済み自動化アクションのカタログです。action_id、種別（読み取り/書き込み）、パラメータ、コストを含む候補アクションのランキングを返します。"
+  llm: "Discover Wire actions for a task from a natural-language intent (e.g. \"top phones on walmart\", \"search airbnb listings in Lisbon\"). Wire covers hundreds of sites with both read (data extraction) and write (form submit, cart add) actions; many read actions need no authentication. Returns ranked candidates, each with action_id, type, params, and whether auth is needed. Run a result with wire_read_action or wire_write_action depending on its type."
+parameters:
+  - name: q
+    type: string
+    required: true
+    label:
+      en_US: "Query"
+      zh_Hans: "查询"
+      pt_BR: "Consulta"
+      ja_JP: "クエリ"
+    human_description:
+      en_US: "The intent in natural language, e.g. \"top phones on walmart\""
+      zh_Hans: "自然语言表达的意图，例如\"沃尔玛上最热门的手机\""
+      pt_BR: "A intenção em linguagem natural, por exemplo, \"melhores celulares na walmart\""
+      ja_JP: "自然言語での意図。例：「walmartで人気のスマートフォン」"
+    llm_description: "The task intent in natural language, e.g. \"top phones on walmart\", \"search airbnb listings in Lisbon\", \"a linkedin profile's work history\"."
+    form: llm
+  - name: limit
+    type: number
+    required: false
+    default: 5
+    label:
+      en_US: "Limit"
+      zh_Hans: "数量限制"
+      pt_BR: "Limite"
+      ja_JP: "上限数"
+    human_description:
+      en_US: "Maximum number of candidate actions to return (default: 5)"
+      zh_Hans: "返回的候选动作数量上限（默认：5）"
+      pt_BR: "Número máximo de ações candidatas a retornar (padrão: 5)"
+      ja_JP: "返す候補アクションの最大数（デフォルト：5）"
+    llm_description: "Maximum number of candidate actions to return."
+    form: form
+extra:
+  python:
+    source: tools/wire_discover.py

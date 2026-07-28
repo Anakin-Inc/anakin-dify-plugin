@@ -92,6 +92,37 @@ parameters:
       ja_JP: "認証が必要なページをスクレイピングするためのブラウザセッションID"
     llm_description: "Browser session ID for accessing authenticated or logged-in pages. Get this from your Anakin dashboard."
     form: form
+  - name: session_name
+    type: string
+    required: false
+    label:
+      en_US: "Session Name"
+      zh_Hans: "会话名称"
+      pt_BR: "Nome da Sessão"
+      ja_JP: "セッション名"
+    human_description:
+      en_US: "Named browser session to use instead of a session ID"
+      zh_Hans: "使用命名的浏览器会话代替会话ID"
+      pt_BR: "Sessão de navegador nomeada para usar em vez de um ID de sessão"
+      ja_JP: "セッションIDの代わりに使用する名前付きブラウザセッション"
+    llm_description: "Named browser session to use for authenticated scraping, as an alternative to session_id."
+    form: form
+  - name: force_fresh
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Force Fresh"
+      zh_Hans: "强制刷新"
+      pt_BR: "Forçar Atualização"
+      ja_JP: "強制更新"
+    human_description:
+      en_US: "Bypass the cache and force a fresh scrape"
+      zh_Hans: "绕过缓存并强制进行新的抓取"
+      pt_BR: "Ignorar o cache e forçar uma nova raspagem"
+      ja_JP: "キャッシュをバイパスして新規スクレイピングを強制する"
+    llm_description: "Set to true to skip the cache and always fetch a fresh copy of the page."
+    form: form
 extra:
   python:
     source: tools/url_scraper.py

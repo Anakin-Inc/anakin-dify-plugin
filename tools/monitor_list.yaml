@@ -1,0 +1,34 @@
+identity:
+  name: "monitor_list"
+  author: "anakin"
+  label:
+    en_US: "List Monitors"
+    zh_Hans: "监控列表"
+    pt_BR: "Listar Monitores"
+    ja_JP: "モニター一覧"
+description:
+  human:
+    en_US: "List your website monitors, or pass an id to fetch one monitor's full configuration and status."
+    zh_Hans: "列出您的所有网站监控，或传入id以获取单个监控的完整配置和状态。"
+    pt_BR: "Liste seus monitores de site, ou informe um id para obter a configuração e o status completos de um monitor."
+    ja_JP: "ウェブサイトモニターの一覧を表示します。idを指定すると、その1件の完全な設定とステータスを取得できます。"
+  llm: "List your website monitors, or pass id to fetch one monitor's full configuration and status (next/last check time, active state, per-check credit cost, alert settings). Use this to find a monitor's id before monitor_changes or monitor_control."
+parameters:
+  - name: id
+    type: string
+    required: false
+    label:
+      en_US: "Monitor ID"
+      zh_Hans: "监控ID"
+      pt_BR: "ID do Monitor"
+      ja_JP: "モニターID"
+    human_description:
+      en_US: "Monitor ID — fetch just this monitor instead of the full list"
+      zh_Hans: "监控ID — 仅获取此监控而非完整列表"
+      pt_BR: "ID do monitor — busca apenas este monitor em vez da lista completa"
+      ja_JP: "モニターID — 一覧全体ではなくこのモニターのみを取得します"
+    llm_description: "Optional monitor ID. When provided, returns just that monitor instead of the full list."
+    form: form
+extra:
+  python:
+    source: tools/monitor_list.py

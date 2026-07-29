@@ -1,0 +1,34 @@
+identity:
+  name: "monitor_changes"
+  author: "anakin"
+  label:
+    en_US: "Monitor Changes"
+    zh_Hans: "监控变化记录"
+    pt_BR: "Alterações do Monitor"
+    ja_JP: "モニター変更履歴"
+description:
+  human:
+    en_US: "Get the detected changes for a monitor — each entry records when the watched content differed from the previous check, with a diff or summary."
+    zh_Hans: "获取某个监控检测到的变化记录 — 每条记录说明监控内容与上次检查相比发生差异的时间，并附带差异或摘要。"
+    pt_BR: "Obtenha as alterações detectadas de um monitor — cada entrada registra quando o conteúdo monitorado diferiu da verificação anterior, com um diff ou resumo."
+    ja_JP: "モニターで検出された変更を取得します — 各エントリは、監視対象コンテンツが前回のチェックと異なっていた時点を、差分または要約とともに記録します。"
+  llm: "Get the detected changes for a monitor — each entry records when the watched content differed from the previous check, with a diff/summary (and the AI change summary when aiMode is on). Use monitor_list first to find the monitor id."
+parameters:
+  - name: id
+    type: string
+    required: true
+    label:
+      en_US: "Monitor ID"
+      zh_Hans: "监控ID"
+      pt_BR: "ID do Monitor"
+      ja_JP: "モニターID"
+    human_description:
+      en_US: "The monitor ID, from monitor_list or monitor_create"
+      zh_Hans: "监控ID，来自monitor_list或monitor_create"
+      pt_BR: "O ID do monitor, obtido em monitor_list ou monitor_create"
+      ja_JP: "モニターID（monitor_listまたはmonitor_createから取得）"
+    llm_description: "The monitor ID, from monitor_list or monitor_create."
+    form: llm
+extra:
+  python:
+    source: tools/monitor_changes.py

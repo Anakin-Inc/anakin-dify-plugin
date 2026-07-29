@@ -1,3 +1,4 @@
+import json
 import time
 from collections.abc import Generator
 from typing import Any
@@ -8,56 +9,47 @@ from dify_plugin.entities.tool import ToolInvokeMessage
 
 
 BASE_URL = "https://api.anakin.io/v1"
-MAX_POLL_ATTEMPTS = 90
-POLL_INTERVAL = 5
+MAX_POLL_ATTEMPTS = 60
+DEFAULT_POLL_INTERVAL = 3
+MIN_POLL_INTERVAL = 0.5
+MAX_POLL_INTERVAL = 10
 
 
-class BatchScraperTool(Tool):
+class WireReadActionTool(Tool):
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
         api_key = self.runtime.credentials.get("api_key")
 
-        urls_str = tool_parameters.get("urls")
-        if not urls_str:
-            yield self.create_text_message("Error: URLs are required")
+        action_id = tool_parameters.get("action_id")
+        if not action_id:
+            yield self.create_text_message("Error: Action ID is required")
             return
 
-        # Parse comma-separated URLs
-        urls = [url.strip() for url in urls_str.split(",") if url.strip()]
+        # Parse optional params
+        params_str = tool_parameters.get("params")
+        params = {}
+        if params_str:
+            try:
+                params = json.loads(params_str)
+            except json.JSONDecodeError:
+                yield self.create_text_message("Error: Invalid JSON in params")
+                return
 
-        if not urls:
-            yield self.create_text_message("Error: No valid URLs provided")
-            return
+        credential_id = tool_parameters.get("credential_id")
+        identity_id = tool_parameters.get("identity_id")
 
-        if len(urls) > 10:
-            yield self.create_text_message("Error: Maximum 10 URLs allowed per batch")
-            return
-
-        country = tool_parameters.get("country", "us")
-        use_browser = tool_parameters.get("use_browser", False)
-        generate_json = tool_parameters.get("generate_json", False)
-        session_id = tool_parameters.get("session_id")
-        session_name = tool_parameters.get("session_name")
-        force_fresh = tool_parameters.get("force_fresh", False)
-
-        payload = {
-            "urls": urls,
-            "country": country,
-            "useBrowser": use_browser,
-            "generateJson": generate_json,
-            "forceFresh": force_fresh
-        }
-
-        # Add sessionId/sessionName only if provided (for authenticated pages)
-        if session_id:
-            payload["sessionId"] = session_id
-        if session_name:
-            payload["sessionName"] = session_name
+        payload = {"action_id": action_id}
+        if params:
+            payload["params"] = params
+        if credential_id:
+            payload["credential_id"] = credential_id
+        if identity_id:
+            payload["identity_id"] = identity_id
 
         try:
             with httpx.Client(timeout=30) as client:
-                # Submit batch job
+                # Submit the Wire task
                 response = client.post(
-                    f"{BASE_URL}/url-scraper/batch",
+                    f"{BASE_URL}/wire/task",
                     headers={
                         "X-API-Key": api_key,
                         "Content-Type": "application/json",
@@ -77,18 +69,20 @@ class BatchScraperTool(Tool):
                     return
 
                 job_data = response.json()
-                job_id = job_data.get("jobId")
+                job_id = job_data.get("job_id")
 
                 if not job_id:
+                    # Synchronous action: the result came back inline, no job to poll.
                     yield self.create_json_message(job_data)
                     return
 
-                # Poll for results
+                # Poll for results, honoring the server's retry_after_ms pacing hint
+                poll_interval = DEFAULT_POLL_INTERVAL
                 for _ in range(MAX_POLL_ATTEMPTS):
-                    time.sleep(POLL_INTERVAL)
+                    time.sleep(poll_interval)
 
                     result_response = client.get(
-                        f"{BASE_URL}/url-scraper/{job_id}",
+                        f"{BASE_URL}/wire/jobs/{job_id}",
                         headers={"X-API-Key": api_key, "X-Source": "dify"}
                     )
 
@@ -102,11 +96,16 @@ class BatchScraperTool(Tool):
                         yield self.create_json_message(result)
                         return
                     elif status == "failed":
-                        error = result.get("error", "Unknown error")
-                        yield self.create_text_message(f"Batch scraping failed: {error}")
+                        error = result.get("error") or {}
+                        message = error.get("message") if isinstance(error, dict) else str(error)
+                        yield self.create_text_message(f"Wire action failed: {message or 'Unknown error'}")
                         return
 
-                yield self.create_text_message("Error: Batch job timed out. Please try again.")
+                    retry_after_ms = result.get("retry_after_ms")
+                    if isinstance(retry_after_ms, (int, float)):
+                        poll_interval = max(MIN_POLL_INTERVAL, min(retry_after_ms / 1000, MAX_POLL_INTERVAL))
+
+                yield self.create_text_message("Error: Wire job timed out. Please try again.")
 
         except httpx.TimeoutException:
             yield self.create_text_message("Error: Request timeout")

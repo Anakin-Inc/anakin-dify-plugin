@@ -1,0 +1,34 @@
+identity:
+  name: "wire_identities"
+  author: "anakin"
+  label:
+    en_US: "Wire Identities"
+    zh_Hans: "Wire身份列表"
+    pt_BR: "Identidades Wire"
+    ja_JP: "Wireアイデンティティ"
+description:
+  human:
+    en_US: "List your saved Wire identities and their credentials. Each credential's id is the credential_id used to run auth-required Wire actions."
+    zh_Hans: "列出已保存的Wire身份及其凭证。每个凭证的id即为运行需要认证的Wire动作时所用的credential_id。"
+    pt_BR: "Liste suas identidades Wire salvas e suas credenciais. O id de cada credencial é o credential_id usado para executar ações Wire que exigem autenticação."
+    ja_JP: "保存済みのWireアイデンティティとその認証情報を一覧表示します。各認証情報のidが、認証が必要なWireアクションを実行する際のcredential_idになります。"
+  llm: "List your saved Wire identities and their credentials. An identity is a named account on a site; each credential's id is the credential_id you pass to wire_read_action / wire_write_action to run actions whose auth_mode is \"required\". Optionally filter by catalog_id."
+parameters:
+  - name: catalog_id
+    type: string
+    required: false
+    label:
+      en_US: "Catalog ID"
+      zh_Hans: "目录ID"
+      pt_BR: "ID do Catálogo"
+      ja_JP: "カタログID"
+    human_description:
+      en_US: "Optional — restrict to identities for a single catalog"
+      zh_Hans: "可选 — 仅限制为某一目录下的身份"
+      pt_BR: "Opcional — restringe às identidades de um único catálogo"
+      ja_JP: "任意 — 単一のカタログのアイデンティティに限定します"
+    llm_description: "Optional catalog ID to restrict results to identities for a single Wire catalog."
+    form: form
+extra:
+  python:
+    source: tools/wire_identities.py

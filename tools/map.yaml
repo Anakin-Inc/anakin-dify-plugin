@@ -1,0 +1,145 @@
+identity:
+  name: "map"
+  author: "anakin"
+  label:
+    en_US: "Site Mapper"
+    zh_Hans: "网站地图"
+    pt_BR: "Mapeador de Site"
+    ja_JP: "サイトマッパー"
+description:
+  human:
+    en_US: "Discover all reachable URLs under a given site. Returns internal links, external links, and counts. Useful for understanding a domain's structure before crawling."
+    zh_Hans: "发现给定网站下所有可访问的URL。返回内部链接、外部链接及其数量。适用于在爬取前了解域名结构。"
+    pt_BR: "Descubra todas as URLs acessíveis em um determinado site. Retorna links internos, links externos e contagens. Útil para entender a estrutura de um domínio antes de rastrear."
+    ja_JP: "指定されたサイト内でアクセス可能なすべてのURLを発見します。内部リンク、外部リンク、およびその数を返します。クロール前にドメイン構造を把握するのに役立ちます。"
+  llm: "Discover all reachable URLs under a site. Use this to understand a domain's structure or find sub-pages before crawling or scraping."
+parameters:
+  - name: url
+    type: string
+    required: true
+    label:
+      en_US: "URL"
+      zh_Hans: "URL"
+      pt_BR: "URL"
+      ja_JP: "URL"
+    human_description:
+      en_US: "The starting URL for discovery (typically a homepage or section root)"
+      zh_Hans: "发现的起始URL（通常是主页或分区根目录）"
+      pt_BR: "A URL inicial para descoberta (normalmente uma página inicial ou raiz de seção)"
+      ja_JP: "発見の起点となるURL（通常はホームページまたはセクションのルート）"
+    llm_description: "The starting URL to discover reachable links from. Typically a homepage or section root."
+    form: llm
+  - name: limit
+    type: number
+    required: false
+    default: 100
+    label:
+      en_US: "Limit"
+      zh_Hans: "数量限制"
+      pt_BR: "Limite"
+      ja_JP: "上限数"
+    human_description:
+      en_US: "Maximum number of URLs to return overall (default: 100)"
+      zh_Hans: "返回的URL总数上限（默认：100）"
+      pt_BR: "Número máximo de URLs a retornar no total (padrão: 100)"
+      ja_JP: "全体で返すURLの最大数（デフォルト：100）"
+    llm_description: "Maximum total number of URLs to return."
+    form: form
+  - name: depth
+    type: number
+    required: false
+    default: 2
+    label:
+      en_US: "Depth"
+      zh_Hans: "深度"
+      pt_BR: "Profundidade"
+      ja_JP: "深さ"
+    human_description:
+      en_US: "How many link-hops from the starting URL to follow (default: 2)"
+      zh_Hans: "从起始URL开始跟踪的链接跳数（默认：2）"
+      pt_BR: "Quantos saltos de link a partir da URL inicial seguir (padrão: 2)"
+      ja_JP: "起点URLから何ホップ先までリンクをたどるか（デフォルト：2）"
+    llm_description: "Number of link-hops from the starting URL to follow."
+    form: form
+  - name: limit_per_level
+    type: number
+    required: false
+    default: 100
+    label:
+      en_US: "Limit Per Level"
+      zh_Hans: "每级数量限制"
+      pt_BR: "Limite por Nível"
+      ja_JP: "レベルごとの上限数"
+    human_description:
+      en_US: "Maximum URLs collected per depth level, controlling breadth (default: 100)"
+      zh_Hans: "每个深度级别收集的最大URL数，用于控制广度（默认：100）"
+      pt_BR: "Máximo de URLs coletadas por nível de profundidade, controlando a amplitude (padrão: 100)"
+      ja_JP: "深さレベルごとに収集するURLの最大数（幅を制御、デフォルト：100）"
+    llm_description: "Maximum number of URLs collected per depth level. Controls breadth of discovery."
+    form: form
+  - name: include_subdomains
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Include Subdomains"
+      zh_Hans: "包含子域名"
+      pt_BR: "Incluir Subdomínios"
+      ja_JP: "サブドメインを含める"
+    human_description:
+      en_US: "Include URLs on subdomains of the starting host"
+      zh_Hans: "包含起始主机子域名下的URL"
+      pt_BR: "Incluir URLs em subdomínios do host inicial"
+      ja_JP: "起点ホストのサブドメイン上のURLを含める"
+    llm_description: "Set to true to also include URLs found on subdomains of the starting host."
+    form: form
+  - name: include_external_links
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Include External Links"
+      zh_Hans: "包含外部链接"
+      pt_BR: "Incluir Links Externos"
+      ja_JP: "外部リンクを含める"
+    human_description:
+      en_US: "Also collect (but do not follow) external links"
+      zh_Hans: "同时收集（但不跟踪）外部链接"
+      pt_BR: "Também coletar (mas não seguir) links externos"
+      ja_JP: "外部リンクも収集する（追跡はしない）"
+    llm_description: "Set to true to also collect external links found on the site, without following them."
+    form: form
+  - name: use_browser
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Use Browser"
+      zh_Hans: "使用浏览器"
+      pt_BR: "Usar Navegador"
+      ja_JP: "ブラウザを使用"
+    human_description:
+      en_US: "Render with a headless browser, for single-page applications"
+      zh_Hans: "使用无头浏览器渲染，适用于单页应用"
+      pt_BR: "Renderizar com um navegador headless, para aplicações de página única"
+      ja_JP: "ヘッドレスブラウザでレンダリングする（SPA向け）"
+    llm_description: "Set to true to render pages with a headless browser, needed for JavaScript-heavy single-page applications."
+    form: form
+  - name: search
+    type: string
+    required: false
+    label:
+      en_US: "Search Filter"
+      zh_Hans: "搜索过滤"
+      pt_BR: "Filtro de Busca"
+      ja_JP: "検索フィルター"
+    human_description:
+      en_US: "Optional keyword filter — only return URLs whose path or title matches"
+      zh_Hans: "可选的关键词过滤器 — 仅返回路径或标题匹配的URL"
+      pt_BR: "Filtro de palavra-chave opcional — retorna apenas URLs cujo caminho ou título correspondam"
+      ja_JP: "任意のキーワードフィルター — パスまたはタイトルが一致するURLのみを返す"
+    llm_description: "Optional keyword filter. Only URLs whose path or title matches this keyword are returned."
+    form: form
+extra:
+  python:
+    source: tools/map.py

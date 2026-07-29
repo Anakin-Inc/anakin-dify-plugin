@@ -1,0 +1,34 @@
+identity:
+  name: "wire_catalog"
+  author: "anakin"
+  label:
+    en_US: "Wire Catalog"
+    zh_Hans: "Wire目录"
+    pt_BR: "Catálogo Wire"
+    ja_JP: "Wireカタログ"
+description:
+  human:
+    en_US: "Browse the Wire catalog. With no slug, lists every supported website and its action count. With a slug, returns that site's full action list with parameter schemas, auth mode, and credit cost."
+    zh_Hans: "浏览Wire目录。不指定slug时，列出所有支持的网站及其动作数量。指定slug时，返回该网站完整的动作列表，包含参数架构、认证方式和积分成本。"
+    pt_BR: "Navegue pelo catálogo Wire. Sem um slug, lista todos os sites suportados e sua contagem de ações. Com um slug, retorna a lista completa de ações do site com esquemas de parâmetros, modo de autenticação e custo em créditos."
+    ja_JP: "Wireカタログを閲覧します。slugを指定しない場合、サポートされているすべてのウェブサイトとそのアクション数を一覧表示します。slugを指定すると、そのサイトの完全なアクション一覧をパラメータスキーマ、認証モード、クレジットコストとともに返します。"
+  llm: "Browse the Wire catalog. Omit slug to list every supported website. Pass a catalog slug (e.g. \"walmart\", \"amazon\", \"linkedin\") to get that site's full action list with exact parameter schemas, each action's type (read/write), auth mode, and credit cost. Use this before running an action with wire_read_action or wire_write_action."
+parameters:
+  - name: slug
+    type: string
+    required: false
+    label:
+      en_US: "Catalog Slug"
+      zh_Hans: "目录标识"
+      pt_BR: "Slug do Catálogo"
+      ja_JP: "カタログスラッグ"
+    human_description:
+      en_US: "Catalog slug to inspect (e.g. \"walmart\"). Omit to list all catalogs."
+      zh_Hans: "要查看的目录标识（例如\"walmart\"）。留空则列出所有目录。"
+      pt_BR: "Slug do catálogo a inspecionar (por exemplo, \"walmart\"). Omita para listar todos os catálogos."
+      ja_JP: "確認するカタログのスラッグ（例：「walmart」）。省略するとすべてのカタログを一覧表示します。"
+    llm_description: "Catalog slug to inspect (e.g. \"walmart\", \"amazon\", \"linkedin\"). Omit to list all catalogs."
+    form: form
+extra:
+  python:
+    source: tools/wire_catalog.py

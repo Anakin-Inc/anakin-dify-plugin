@@ -1,0 +1,386 @@
+identity:
+  name: "monitor_create"
+  author: "anakin"
+  label:
+    en_US: "Create Monitor"
+    zh_Hans: "创建监控"
+    pt_BR: "Criar Monitor"
+    ja_JP: "モニター作成"
+description:
+  human:
+    en_US: "Create a scheduled website monitor that checks a URL periodically and records a change when the content differs, optionally alerting a webhook or email."
+    zh_Hans: "创建一个定期检查URL的计划监控，当内容发生变化时记录该变化，并可选择通过webhook或邮件发出提醒。"
+    pt_BR: "Crie um monitor de site agendado que verifica uma URL periodicamente e registra uma alteração quando o conteúdo difere, opcionalmente alertando um webhook ou e-mail."
+    ja_JP: "URLを定期的にチェックし、コンテンツに変化があった場合に記録するスケジュール済みのウェブサイトモニターを作成します。webhookまたはメールへの通知も任意で設定できます。"
+  llm: "Create a scheduled website monitor that checks a URL every intervalMinutes (min 15) and records a change when the content differs — optionally alerting a webhook or email. scope \"page\" (default) watches one URL; \"site\" crawls the site each run and tracks pages added/removed/changed; \"wire\" runs a Wire action each check and diffs its JSON. watchMode \"full_page\" compares the whole page; \"specific_data\" extracts only the fields in output_schema with AI — ideal for price/stock/status tracking."
+parameters:
+  - name: url
+    type: string
+    required: true
+    label:
+      en_US: "URL"
+      zh_Hans: "URL"
+      pt_BR: "URL"
+      ja_JP: "URL"
+    human_description:
+      en_US: "The URL to watch (root URL for site scope; the Wire site's URL for wire scope)"
+      zh_Hans: "要监控的URL（site范围时为根URL；wire范围时为Wire站点的URL）"
+      pt_BR: "A URL a ser monitorada (URL raiz para escopo de site; URL do site Wire para escopo wire)"
+      ja_JP: "監視するURL（siteスコープの場合はルートURL、wireスコープの場合はWireサイトのURL）"
+    llm_description: "The URL to watch. Root URL when scope is \"site\"; the Wire site's URL when scope is \"wire\"."
+    form: llm
+  - name: interval_minutes
+    type: number
+    required: true
+    label:
+      en_US: "Interval (Minutes)"
+      zh_Hans: "检查间隔（分钟）"
+      pt_BR: "Intervalo (Minutos)"
+      ja_JP: "間隔（分）"
+    human_description:
+      en_US: "Check frequency in minutes. Minimum 15."
+      zh_Hans: "检查频率（分钟）。最小值为15。"
+      pt_BR: "Frequência de verificação em minutos. Mínimo de 15."
+      ja_JP: "チェック頻度（分単位）。最小値は15です"
+    llm_description: "Check frequency in minutes. Minimum 15."
+    form: llm
+  - name: scope
+    type: string
+    required: false
+    default: "page"
+    label:
+      en_US: "Scope"
+      zh_Hans: "监控范围"
+      pt_BR: "Escopo"
+      ja_JP: "スコープ"
+    human_description:
+      en_US: "What to monitor: \"page\", \"site\", or \"wire\" (default: page)"
+      zh_Hans: "监控范围：\"page\"（单页）、\"site\"（整站）或\"wire\"（Wire动作）（默认：page）"
+      pt_BR: "O que monitorar: \"page\", \"site\" ou \"wire\" (padrão: page)"
+      ja_JP: "監視対象：「page」「site」「wire」のいずれか（デフォルト：page）"
+    llm_description: "What to monitor: \"page\" (one URL, default), \"site\" (crawls the whole site each run), or \"wire\" (runs a Wire action each check)."
+    form: form
+  - name: watch_mode
+    type: string
+    required: false
+    default: "full_page"
+    label:
+      en_US: "Watch Mode"
+      zh_Hans: "监控模式"
+      pt_BR: "Modo de Observação"
+      ja_JP: "監視モード"
+    human_description:
+      en_US: "\"full_page\" compares the whole page (default); \"specific_data\" extracts only the fields in output_schema with AI"
+      zh_Hans: "\"full_page\"比较整个页面（默认）；\"specific_data\"使用AI仅提取output_schema中定义的字段"
+      pt_BR: "\"full_page\" compara a página inteira (padrão); \"specific_data\" extrai apenas os campos em output_schema com IA"
+      ja_JP: "「full_page」はページ全体を比較（デフォルト）。「specific_data」はAIでoutput_schema内のフィールドのみを抽出します"
+    llm_description: "\"full_page\" (default) compares the whole page. \"specific_data\" extracts only the fields defined in output_schema using AI — required for that mode."
+    form: form
+  - name: watch_format
+    type: string
+    required: false
+    default: "markdown"
+    label:
+      en_US: "Watch Format"
+      zh_Hans: "监控格式"
+      pt_BR: "Formato de Observação"
+      ja_JP: "監視フォーマット"
+    human_description:
+      en_US: "Format compared in full_page mode: \"markdown\", \"html\", or \"cleaned_html\" (default: markdown)"
+      zh_Hans: "full_page模式下比较的格式：\"markdown\"、\"html\"或\"cleaned_html\"（默认：markdown）"
+      pt_BR: "Formato comparado no modo full_page: \"markdown\", \"html\" ou \"cleaned_html\" (padrão: markdown)"
+      ja_JP: "full_pageモードで比較するフォーマット：「markdown」「html」「cleaned_html」（デフォルト：markdown）"
+    llm_description: "Format compared in full_page mode: \"markdown\", \"html\", or \"cleaned_html\". Defaults to markdown."
+    form: form
+  - name: output_schema
+    type: string
+    required: false
+    label:
+      en_US: "Output Schema"
+      zh_Hans: "输出架构"
+      pt_BR: "Esquema de Saída"
+      ja_JP: "出力スキーマ"
+    human_description:
+      en_US: "JSON Schema string of the fields to track. Required when watch_mode is \"specific_data\"."
+      zh_Hans: "要跟踪字段的JSON Schema字符串。当watch_mode为\"specific_data\"时必填。"
+      pt_BR: "String de JSON Schema dos campos a serem rastreados. Obrigatório quando watch_mode é \"specific_data\"."
+      ja_JP: "追跡するフィールドのJSON Schema文字列。watch_modeが「specific_data」の場合は必須です"
+    llm_description: "JSON Schema string describing the fields to track with AI extraction. Required when watch_mode is \"specific_data\"."
+    form: form
+  - name: ai_mode
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "AI Mode"
+      zh_Hans: "AI模式"
+      pt_BR: "Modo IA"
+      ja_JP: "AIモード"
+    human_description:
+      en_US: "AI meaningful-change filtering: ignores trivial noise and summarizes real changes"
+      zh_Hans: "AI有意义变化过滤：忽略无关紧要的噪声，并总结真正的变化"
+      pt_BR: "Filtragem de alterações significativas por IA: ignora ruídos triviais e resume alterações reais"
+      ja_JP: "AIによる意味のある変化のフィルタリング：些細なノイズを無視し、実際の変化を要約します"
+    llm_description: "Enable AI meaningful-change filtering, which ignores trivial noise (ads, timestamps) and summarizes real changes."
+    form: form
+  - name: ai_goal
+    type: string
+    required: false
+    label:
+      en_US: "AI Goal"
+      zh_Hans: "AI目标"
+      pt_BR: "Objetivo da IA"
+      ja_JP: "AI目標"
+    human_description:
+      en_US: "Natural-language description of which changes count as meaningful (used with ai_mode)"
+      zh_Hans: "描述哪些变化算作有意义变化的自然语言说明（与ai_mode配合使用）"
+      pt_BR: "Descrição em linguagem natural de quais alterações contam como significativas (usado com ai_mode)"
+      ja_JP: "どの変化を意味のある変化とみなすかの自然言語による説明（ai_modeと併用）"
+    llm_description: "Natural-language description of which changes count as meaningful, used with ai_mode, e.g. \"only when the price drops or it goes out of stock\"."
+    form: form
+  - name: use_browser
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Use Browser"
+      zh_Hans: "使用浏览器"
+      pt_BR: "Usar Navegador"
+      ja_JP: "ブラウザを使用"
+    human_description:
+      en_US: "Render checks with a stealth headless browser, needed for JavaScript-heavy pages"
+      zh_Hans: "使用隐匿无头浏览器进行检查，适用于JavaScript密集型页面"
+      pt_BR: "Renderizar verificações com um navegador headless stealth, necessário para páginas com muito JavaScript"
+      ja_JP: "ステルスヘッドレスブラウザでチェックを実行します（JavaScript重視のページに必要）"
+    llm_description: "Render checks with a stealth headless browser, needed for JavaScript-heavy pages. Forced true when session_id is set."
+    form: form
+  - name: country
+    type: string
+    required: false
+    default: "us"
+    label:
+      en_US: "Country"
+      zh_Hans: "国家"
+      pt_BR: "País"
+      ja_JP: "国"
+    human_description:
+      en_US: "Two-letter proxy country code (default: us)"
+      zh_Hans: "两位字母的代理国家代码（默认：us）"
+      pt_BR: "Código de país de proxy de duas letras (padrão: us)"
+      ja_JP: "2文字のプロキシ国コード（デフォルト：us）"
+    llm_description: "Two-letter proxy country code. Defaults to \"us\"."
+    form: form
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: "Session ID"
+      zh_Hans: "会话ID"
+      pt_BR: "ID da Sessão"
+      ja_JP: "セッションID"
+    human_description:
+      en_US: "Saved browser-session ID for monitoring login-protected pages"
+      zh_Hans: "用于监控受登录保护页面的已保存浏览器会话ID"
+      pt_BR: "ID de sessão de navegador salva para monitorar páginas protegidas por login"
+      ja_JP: "ログイン保護されたページを監視するための保存済みブラウザセッションID"
+    llm_description: "Saved browser-session ID (from session_list) for monitoring login-protected pages."
+    form: form
+  - name: is_active
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: "Active"
+      zh_Hans: "启用"
+      pt_BR: "Ativo"
+      ja_JP: "有効"
+    human_description:
+      en_US: "Start running immediately (default: true)"
+      zh_Hans: "立即开始运行（默认：true）"
+      pt_BR: "Iniciar imediatamente (padrão: true)"
+      ja_JP: "すぐに実行を開始する（デフォルト：true）"
+    llm_description: "Whether the monitor starts running immediately. Defaults to true."
+    form: form
+  - name: expires_at
+    type: string
+    required: false
+    label:
+      en_US: "Expires At"
+      zh_Hans: "过期时间"
+      pt_BR: "Expira Em"
+      ja_JP: "有効期限"
+    human_description:
+      en_US: "Optional end date (ISO 8601 timestamp or YYYY-MM-DD); the monitor auto-pauses when it passes"
+      zh_Hans: "可选的结束日期（ISO 8601时间戳或YYYY-MM-DD）；到期后监控将自动暂停"
+      pt_BR: "Data de término opcional (timestamp ISO 8601 ou AAAA-MM-DD); o monitor pausa automaticamente ao passar"
+      ja_JP: "任意の終了日（ISO 8601形式のタイムスタンプまたはYYYY-MM-DD）。この日を過ぎるとモニターは自動的に一時停止します"
+    llm_description: "Optional end date (ISO 8601 timestamp or YYYY-MM-DD). The monitor auto-pauses once it passes."
+    form: form
+  - name: alert_webhook_url
+    type: string
+    required: false
+    label:
+      en_US: "Alert Webhook URL"
+      zh_Hans: "提醒Webhook URL"
+      pt_BR: "URL do Webhook de Alerta"
+      ja_JP: "アラートWebhook URL"
+    human_description:
+      en_US: "Webhook URL that receives signed change alerts"
+      zh_Hans: "接收签名变化提醒的Webhook URL"
+      pt_BR: "URL do webhook que recebe alertas de alteração assinados"
+      ja_JP: "署名付きの変更アラートを受信するWebhook URL"
+    llm_description: "Webhook URL that receives signed change alerts when the monitored content changes."
+    form: form
+  - name: alert_emails
+    type: string
+    required: false
+    label:
+      en_US: "Alert Emails"
+      zh_Hans: "提醒邮箱"
+      pt_BR: "E-mails de Alerta"
+      ja_JP: "アラートメール"
+    human_description:
+      en_US: "Comma-separated email recipients for change alerts"
+      zh_Hans: "以逗号分隔的变化提醒收件邮箱列表"
+      pt_BR: "Destinatários de e-mail separados por vírgula para alertas de alteração"
+      ja_JP: "変更アラートの送信先メールアドレス（カンマ区切り）"
+    llm_description: "Comma-separated list of email addresses to notify when a change is detected."
+    form: form
+  - name: max_pages
+    type: number
+    required: false
+    label:
+      en_US: "Max Pages"
+      zh_Hans: "最大页数"
+      pt_BR: "Máximo de Páginas"
+      ja_JP: "最大ページ数"
+    human_description:
+      en_US: "Site scope: max pages crawled per run"
+      zh_Hans: "site范围：每次运行爬取的最大页数"
+      pt_BR: "Escopo de site: máximo de páginas rastreadas por execução"
+      ja_JP: "siteスコープ：1回の実行でクロールする最大ページ数"
+    llm_description: "Site scope only: maximum pages crawled per check."
+    form: form
+  - name: max_depth
+    type: number
+    required: false
+    label:
+      en_US: "Max Depth"
+      zh_Hans: "最大深度"
+      pt_BR: "Profundidade Máxima"
+      ja_JP: "最大深度"
+    human_description:
+      en_US: "Site scope: crawl depth, 1-5 (default: 2)"
+      zh_Hans: "site范围：爬取深度，1-5（默认：2）"
+      pt_BR: "Escopo de site: profundidade de rastreamento, 1-5 (padrão: 2)"
+      ja_JP: "siteスコープ：クロール深度、1〜5（デフォルト：2）"
+    llm_description: "Site scope only: crawl depth from 1 to 5. Defaults to 2."
+    form: form
+  - name: include_patterns
+    type: string
+    required: false
+    label:
+      en_US: "Include Patterns"
+      zh_Hans: "包含模式"
+      pt_BR: "Padrões de Inclusão"
+      ja_JP: "含めるパターン"
+    human_description:
+      en_US: "Site scope: JSON array string of glob patterns or hand-picked URLs to track"
+      zh_Hans: "site范围：要跟踪的glob模式或指定URL的JSON数组字符串"
+      pt_BR: "Escopo de site: string de array JSON de padrões glob ou URLs selecionadas para rastrear"
+      ja_JP: "siteスコープ：追跡するglobパターンまたは指定URLのJSON配列文字列"
+    llm_description: "Site scope only: JSON array string of glob patterns or hand-picked same-site URLs to track, e.g. [\"/products/*\"]."
+    form: form
+  - name: exclude_patterns
+    type: string
+    required: false
+    label:
+      en_US: "Exclude Patterns"
+      zh_Hans: "排除模式"
+      pt_BR: "Padrões de Exclusão"
+      ja_JP: "除外パターン"
+    human_description:
+      en_US: "Site scope: JSON array string of glob patterns to skip"
+      zh_Hans: "site范围：要跳过的glob模式的JSON数组字符串"
+      pt_BR: "Escopo de site: string de array JSON de padrões glob a serem ignorados"
+      ja_JP: "siteスコープ：スキップするglobパターンのJSON配列文字列"
+    llm_description: "Site scope only: JSON array string of glob patterns to skip, e.g. [\"/admin/*\"]."
+    form: form
+  - name: wire_action_id
+    type: string
+    required: false
+    label:
+      en_US: "Wire Action ID"
+      zh_Hans: "Wire动作ID"
+      pt_BR: "ID da Ação Wire"
+      ja_JP: "WireアクションID"
+    human_description:
+      en_US: "Wire scope (required there): the Wire action run each check"
+      zh_Hans: "wire范围（此范围下必填）：每次检查运行的Wire动作"
+      pt_BR: "Escopo wire (obrigatório nesse caso): a ação Wire executada em cada verificação"
+      ja_JP: "wireスコープ（この場合必須）：各チェックで実行されるWireアクション"
+    llm_description: "Wire scope only (required there): the Wire action_id run each check, e.g. \"amazon.search_products\" (see wire_discover)."
+    form: form
+  - name: wire_catalog_slug
+    type: string
+    required: false
+    label:
+      en_US: "Wire Catalog Slug"
+      zh_Hans: "Wire目录标识"
+      pt_BR: "Slug do Catálogo Wire"
+      ja_JP: "Wireカタログスラッグ"
+    human_description:
+      en_US: "Wire scope: catalog slug of the Wire site"
+      zh_Hans: "wire范围：Wire站点的目录标识"
+      pt_BR: "Escopo wire: slug do catálogo do site Wire"
+      ja_JP: "wireスコープ：Wireサイトのカタログスラッグ"
+    llm_description: "Wire scope only: catalog slug of the Wire site."
+    form: form
+  - name: wire_credential_id
+    type: string
+    required: false
+    label:
+      en_US: "Wire Credential ID"
+      zh_Hans: "Wire凭证ID"
+      pt_BR: "ID da Credencial Wire"
+      ja_JP: "Wire認証情報ID"
+    human_description:
+      en_US: "Wire scope: credential ID when the action needs auth"
+      zh_Hans: "wire范围：动作需要认证时使用的凭证ID"
+      pt_BR: "Escopo wire: ID da credencial quando a ação requer autenticação"
+      ja_JP: "wireスコープ：アクションに認証が必要な場合の認証情報ID"
+    llm_description: "Wire scope only: credential ID when the action needs auth (see wire_identities)."
+    form: form
+  - name: wire_params
+    type: string
+    required: false
+    label:
+      en_US: "Wire Parameters"
+      zh_Hans: "Wire参数"
+      pt_BR: "Parâmetros Wire"
+      ja_JP: "Wireパラメータ"
+    human_description:
+      en_US: "Wire scope: JSON string of parameters passed to the action each check"
+      zh_Hans: "wire范围：每次检查传给该动作的参数的JSON字符串"
+      pt_BR: "Escopo wire: string JSON de parâmetros passados para a ação em cada verificação"
+      ja_JP: "wireスコープ：各チェックでアクションに渡すパラメータのJSON文字列"
+    llm_description: "Wire scope only: JSON string of parameters passed to the Wire action on each check."
+    form: form
+  - name: wire_watch_paths
+    type: string
+    required: false
+    label:
+      en_US: "Wire Watch Paths"
+      zh_Hans: "Wire监控路径"
+      pt_BR: "Caminhos de Observação Wire"
+      ja_JP: "Wire監視パス"
+    human_description:
+      en_US: "Wire scope: JSON array string of JSON paths to diff instead of the whole response"
+      zh_Hans: "wire范围：用于比对而非整个响应的JSON路径的JSON数组字符串"
+      pt_BR: "Escopo wire: string de array JSON de caminhos JSON para comparar em vez da resposta inteira"
+      ja_JP: "wireスコープ：レスポンス全体ではなく差分比較するJSONパスのJSON配列文字列"
+    llm_description: "Wire scope only: JSON array string of JSON paths to diff instead of the whole response."
+    form: form
+extra:
+  python:
+    source: tools/monitor_create.py

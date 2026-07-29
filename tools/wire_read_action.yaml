@@ -1,0 +1,79 @@
+identity:
+  name: "wire_read_action"
+  author: "anakin"
+  label:
+    en_US: "Wire Read Action"
+    zh_Hans: "Wire读取动作"
+    pt_BR: "Ação de Leitura Wire"
+    ja_JP: "Wire読み取りアクション"
+description:
+  human:
+    en_US: "Run a Wire READ action — one that extracts data and does not change state on the target site (search listings, get a product's price, read a profile). Polls until the job completes and returns the extracted data."
+    zh_Hans: "执行Wire的读取（READ）动作 — 该类动作提取数据且不会更改目标网站的状态（如搜索列表、获取商品价格、读取个人资料）。轮询直至任务完成并返回提取的数据。"
+    pt_BR: "Execute uma ação de LEITURA Wire — uma que extrai dados e não altera o estado no site de destino (buscar listagens, obter o preço de um produto, ler um perfil). Consulta até que o trabalho seja concluído e retorna os dados extraídos."
+    ja_JP: "Wireの読み取り（READ）アクションを実行します — データを抽出し、対象サイトの状態を変更しないアクションです（リスト検索、商品価格の取得、プロフィールの読み取りなど）。ジョブが完了するまでポーリングし、抽出されたデータを返します。"
+  llm: "Run a Wire READ action (type=\"read\", from wire_discover or wire_catalog): extracts data without changing state on the target site (search listings, fetch a category's products, get a product's price/specs/reviews, read a profile, pull dashboard metrics). params must match the action's parameter schema. Most read actions need no auth; if auth_mode is \"required\", pass credential_id from wire_identities or wire_login. For state-changing actions (type=\"write\") use wire_write_action instead."
+parameters:
+  - name: action_id
+    type: string
+    required: true
+    label:
+      en_US: "Action ID"
+      zh_Hans: "动作ID"
+      pt_BR: "ID da Ação"
+      ja_JP: "アクションID"
+    human_description:
+      en_US: "The action to run, from wire_discover or wire_catalog"
+      zh_Hans: "要执行的动作，来自wire_discover或wire_catalog"
+      pt_BR: "A ação a ser executada, obtida em wire_discover ou wire_catalog"
+      ja_JP: "実行するアクション（wire_discoverまたはwire_catalogから取得）"
+    llm_description: "The action_id to run, discovered via wire_discover or wire_catalog. Its type must be \"read\"."
+    form: llm
+  - name: params
+    type: string
+    required: false
+    label:
+      en_US: "Parameters"
+      zh_Hans: "参数"
+      pt_BR: "Parâmetros"
+      ja_JP: "パラメータ"
+    human_description:
+      en_US: "JSON string of the action's input parameters. Shape depends on the action."
+      zh_Hans: "该动作输入参数的JSON字符串。具体结构取决于动作本身。"
+      pt_BR: "String JSON com os parâmetros de entrada da ação. O formato depende da ação."
+      ja_JP: "アクションの入力パラメータのJSON文字列。形式はアクションによって異なります。"
+    llm_description: "Optional JSON string of the action's input parameters, matching the parameter schema returned by wire_discover/wire_catalog for this action_id. Omit for actions that take none."
+    form: form
+  - name: credential_id
+    type: string
+    required: false
+    label:
+      en_US: "Credential ID"
+      zh_Hans: "凭证ID"
+      pt_BR: "ID da Credencial"
+      ja_JP: "認証情報ID"
+    human_description:
+      en_US: "Required when the action's auth_mode is \"required\"; get one from wire_identities or wire_login"
+      zh_Hans: "当动作的auth_mode为\"required\"时必填；可从wire_identities或wire_login获取"
+      pt_BR: "Obrigatório quando o auth_mode da ação é \"required\"; obtenha um em wire_identities ou wire_login"
+      ja_JP: "アクションのauth_modeが「required」の場合に必須。wire_identitiesまたはwire_loginから取得してください"
+    llm_description: "Required when the action's auth_mode is \"required\"; honored when \"optional\". Get one from wire_identities or wire_login."
+    form: form
+  - name: identity_id
+    type: string
+    required: false
+    label:
+      en_US: "Identity ID"
+      zh_Hans: "身份ID"
+      pt_BR: "ID da Identidade"
+      ja_JP: "アイデンティティID"
+    human_description:
+      en_US: "Optional identity selector; the server resolves a credential from it"
+      zh_Hans: "可选的身份选择器；服务器将据此解析出对应的凭证"
+      pt_BR: "Seletor de identidade opcional; o servidor resolve uma credencial a partir dele"
+      ja_JP: "任意のアイデンティティセレクター。サーバー側でこれをもとに認証情報を解決します"
+    llm_description: "Optional identity selector, an alternative to credential_id — the server resolves a credential from it."
+    form: form
+extra:
+  python:
+    source: tools/wire_read_action.py

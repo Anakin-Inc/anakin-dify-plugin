@@ -1,0 +1,81 @@
+identity:
+  name: "ai_visibility_search"
+  author: "anakin"
+  label:
+    en_US: "AI Visibility Search"
+    zh_Hans: "AI可见性搜索"
+    pt_BR: "Busca de Visibilidade IA"
+    ja_JP: "AI可視性検索"
+description:
+  human:
+    en_US: "Ask multiple AI answer engines (ChatGPT, Gemini, Google AI Overview) the same question and compare their answers. Returns per-engine results plus an AI-generated synthesis of where they agree and diverge."
+    zh_Hans: "向多个AI回答引擎（ChatGPT、Gemini、Google AI Overview）提出同一问题并比较其答案。返回每个引擎的结果，以及AI生成的关于其一致与分歧之处的综合分析。"
+    pt_BR: "Faça a mesma pergunta a vários mecanismos de resposta de IA (ChatGPT, Gemini, Google AI Overview) e compare suas respostas. Retorna resultados por mecanismo, além de uma síntese gerada por IA sobre onde concordam e divergem."
+    ja_JP: "複数のAI回答エンジン（ChatGPT、Gemini、Google AI Overview）に同じ質問をし、回答を比較します。エンジンごとの結果に加え、一致点・相違点をAIが要約した統合分析を返します。"
+  llm: "Ask multiple AI answer engines the same question and compare their answers. Returns one result per engine — status, an answer summary, latency, credits used, and a consensus/outlier verdict — plus an AI-generated synthesis. Async; typically completes within 1-2 minutes and this tool polls to completion. Use for brand/AI-SEO visibility checks (\"what do AI engines say about X\"), answer comparison, and geo-specific AI answers (set country)."
+parameters:
+  - name: query
+    type: string
+    required: true
+    label:
+      en_US: "Query"
+      zh_Hans: "查询"
+      pt_BR: "Consulta"
+      ja_JP: "クエリ"
+    human_description:
+      en_US: "The question to ask every engine (max 2000 characters)"
+      zh_Hans: "向每个引擎提出的问题（最多2000字符）"
+      pt_BR: "A pergunta a ser feita a cada mecanismo (máximo de 2000 caracteres)"
+      ja_JP: "各エンジンに尋ねる質問（最大2000文字）"
+    llm_description: "The question to ask every AI engine. Maximum 2000 characters."
+    form: llm
+  - name: sources
+    type: string
+    required: false
+    label:
+      en_US: "Sources"
+      zh_Hans: "来源引擎"
+      pt_BR: "Fontes"
+      ja_JP: "ソース"
+    human_description:
+      en_US: "JSON array string of engine slugs to query (see ai_visibility_sources). Omit to query all enabled engines."
+      zh_Hans: "要查询的引擎标识的JSON数组字符串（参见ai_visibility_sources）。留空则查询所有已启用的引擎。"
+      pt_BR: "String de array JSON com slugs de mecanismos a consultar (veja ai_visibility_sources). Omita para consultar todos os mecanismos habilitados."
+      ja_JP: "問い合わせるエンジンスラッグのJSON配列文字列（ai_visibility_sourcesを参照）。省略するとすべての有効なエンジンに問い合わせます"
+    llm_description: "Optional JSON array string of engine slugs to query, e.g. [\"chatgpt\", \"gemini\"]. See ai_visibility_sources for valid slugs. Omit to query all enabled engines."
+    form: form
+  - name: country
+    type: string
+    required: false
+    default: "us"
+    label:
+      en_US: "Country"
+      zh_Hans: "国家"
+      pt_BR: "País"
+      ja_JP: "国"
+    human_description:
+      en_US: "Two-letter ISO country code for the search geography (default: us)"
+      zh_Hans: "搜索地理位置的两位ISO国家代码（默认：us）"
+      pt_BR: "Código de país ISO de duas letras para a geografia de busca (padrão: us)"
+      ja_JP: "検索地域を示す2文字のISO国コード（デフォルト：us）"
+    llm_description: "Two-letter ISO country code for the search geography (proxy exit). Defaults to \"us\"."
+    form: form
+  - name: include_full_content
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Include Full Content"
+      zh_Hans: "包含完整内容"
+      pt_BR: "Incluir Conteúdo Completo"
+      ja_JP: "全文を含める"
+    human_description:
+      en_US: "Include each engine's raw full answer in the results (large). Summaries and the synthesis are returned regardless."
+      zh_Hans: "在结果中包含每个引擎的原始完整答案（数据量大）。无论是否勾选，摘要和综合分析都会返回。"
+      pt_BR: "Incluir a resposta bruta completa de cada mecanismo nos resultados (extenso). Resumos e a síntese são retornados de qualquer forma."
+      ja_JP: "各エンジンの生の全文回答を結果に含めます（データ量が大きい）。要約と統合分析はこの設定に関わらず返されます"
+    llm_description: "Set to true to include each engine's raw full answer in the results. Defaults to false — summaries and the synthesis are returned regardless."
+    form: form
+extra:
+  python:
+    source: tools/ai_visibility_search.py

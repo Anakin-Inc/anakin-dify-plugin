@@ -1,3 +1,4 @@
+import json
 import time
 from collections.abc import Generator
 from typing import Any
@@ -21,9 +22,24 @@ class AgenticSearchTool(Tool):
             yield self.create_text_message("Error: Research question is required")
             return
 
+        use_browser = tool_parameters.get("use_browser", True)
+
+        # Parse optional data schema
+        schema_str = tool_parameters.get("schema")
+        schema = None
+        if schema_str:
+            try:
+                schema = json.loads(schema_str)
+            except json.JSONDecodeError:
+                yield self.create_text_message("Error: Invalid JSON in schema")
+                return
+
         payload = {
-            "prompt": prompt
+            "prompt": prompt,
+            "useBrowser": use_browser
         }
+        if schema is not None:
+            payload["schema"] = schema
 
         try:
             with httpx.Client(timeout=30) as client:

@@ -39,6 +39,24 @@ tools:
   - tools/search.yaml
   - tools/agentic_search.yaml
   - tools/web_scraper.yaml
+  - tools/map.yaml
+  - tools/crawl.yaml
+  - tools/wire_discover.yaml
+  - tools/wire_catalog.yaml
+  - tools/wire_read_action.yaml
+  - tools/wire_write_action.yaml
+  - tools/wire_identities.yaml
+  - tools/wire_login.yaml
+  - tools/wire_build.yaml
+  - tools/monitor_create.yaml
+  - tools/monitor_list.yaml
+  - tools/monitor_changes.yaml
+  - tools/monitor_control.yaml
+  - tools/ai_visibility_search.yaml
+  - tools/ai_visibility_sources.yaml
+  - tools/session_list.yaml
+  - tools/session_delete.yaml
+  - tools/browser_task.yaml
 extra:
   python:
     source: provider/anakin.py

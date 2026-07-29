@@ -1,0 +1,34 @@
+identity:
+  name: "session_list"
+  author: "anakin"
+  label:
+    en_US: "List Sessions"
+    zh_Hans: "会话列表"
+    pt_BR: "Listar Sessões"
+    ja_JP: "セッション一覧"
+description:
+  human:
+    en_US: "List your saved browser sessions — encrypted login states used for scraping, crawling, monitoring, or browser tasks on authenticated pages."
+    zh_Hans: "列出已保存的浏览器会话 — 加密的登录状态，用于在需要身份验证的页面上进行抓取、爬取、监控或浏览器任务。"
+    pt_BR: "Liste suas sessões de navegador salvas — estados de login criptografados usados para raspagem, rastreamento, monitoramento ou tarefas de navegador em páginas autenticadas."
+    ja_JP: "保存済みのブラウザセッション一覧を表示します — 認証が必要なページでのスクレイピング、クロール、監視、ブラウザタスクに使用される暗号化されたログイン状態です。"
+  llm: "List your saved browser sessions — encrypted login states captured via the Anakin dashboard or Browser API. Each session's id is what you pass as session_id to scrape/crawl, monitor_create, or browser_task to work with login-protected pages. Optionally filter by domain."
+parameters:
+  - name: domain
+    type: string
+    required: false
+    label:
+      en_US: "Domain"
+      zh_Hans: "域名"
+      pt_BR: "Domínio"
+      ja_JP: "ドメイン"
+    human_description:
+      en_US: "Filter to sessions for one website domain, e.g. \"amazon.com\""
+      zh_Hans: "筛选出属于某个网站域名的会话，例如\"amazon.com\""
+      pt_BR: "Filtrar por sessões de um único domínio de site, por exemplo, \"amazon.com\""
+      ja_JP: "特定のウェブサイトドメインのセッションに絞り込みます（例：「amazon.com」）"
+    llm_description: "Optional website domain to filter sessions by, e.g. \"amazon.com\"."
+    form: form
+extra:
+  python:
+    source: tools/session_list.py

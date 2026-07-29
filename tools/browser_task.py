@@ -1,3 +1,4 @@
+import json
 import time
 from collections.abc import Generator
 from typing import Any
@@ -8,46 +9,53 @@ from dify_plugin.entities.tool import ToolInvokeMessage
 
 
 BASE_URL = "https://api.anakin.io/v1"
-MAX_POLL_ATTEMPTS = 60
+# Browser AI tasks are hard-capped server-side at ~330s, so the poll window
+# must outlast the longest legitimate run.
+MAX_POLL_ATTEMPTS = 120
 POLL_INTERVAL = 3
 
 
-class UrlScraperTool(Tool):
+class BrowserTaskTool(Tool):
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
         api_key = self.runtime.credentials.get("api_key")
 
-        url = tool_parameters.get("url")
-        if not url:
-            yield self.create_text_message("Error: URL is required")
+        prompt = tool_parameters.get("prompt")
+        if not prompt:
+            yield self.create_text_message("Error: Prompt is required")
             return
 
-        country = tool_parameters.get("country", "us")
-        use_browser = tool_parameters.get("use_browser", False)
-        generate_json = tool_parameters.get("generate_json", False)
+        url = tool_parameters.get("url")
         session_id = tool_parameters.get("session_id")
-        session_name = tool_parameters.get("session_name")
-        force_fresh = tool_parameters.get("force_fresh", False)
+        max_steps = tool_parameters.get("max_steps")
+        timeout_ms = tool_parameters.get("timeout_ms")
 
-        # Submit the scraping job
-        payload = {
-            "url": url,
-            "country": country,
-            "useBrowser": use_browser,
-            "generateJson": generate_json,
-            "forceFresh": force_fresh
-        }
+        # Parse optional output schema
+        output_schema_str = tool_parameters.get("output_schema")
+        output_schema = None
+        if output_schema_str:
+            try:
+                output_schema = json.loads(output_schema_str)
+            except json.JSONDecodeError:
+                yield self.create_text_message("Error: Invalid JSON in output_schema")
+                return
 
-        # Add sessionId/sessionName only if provided (for authenticated pages)
+        payload = {"prompt": prompt, "async": True}
+        if url:
+            payload["url"] = url
         if session_id:
-            payload["sessionId"] = session_id
-        if session_name:
-            payload["sessionName"] = session_name
+            payload["session_id"] = session_id
+        if max_steps is not None:
+            payload["max_steps"] = int(max_steps)
+        if timeout_ms is not None:
+            payload["timeout_ms"] = int(timeout_ms)
+        if output_schema is not None:
+            payload["output_schema"] = output_schema
 
         try:
             with httpx.Client(timeout=30) as client:
-                # Submit job
+                # Submit the browser task
                 response = client.post(
-                    f"{BASE_URL}/url-scraper",
+                    f"{BASE_URL}/ai/evaluate",
                     headers={
                         "X-API-Key": api_key,
                         "Content-Type": "application/json",
@@ -67,36 +75,38 @@ class UrlScraperTool(Tool):
                     return
 
                 job_data = response.json()
-                job_id = job_data.get("jobId")
+                workflow_id = job_data.get("workflow_id")
 
-                if not job_id:
+                if not workflow_id:
+                    # Service answered synchronously (shouldn't happen with async: true).
                     yield self.create_json_message(job_data)
                     return
 
-                # Poll for results
+                # Poll for results (browser tasks can run up to ~5.5 minutes)
                 for _ in range(MAX_POLL_ATTEMPTS):
                     time.sleep(POLL_INTERVAL)
 
                     result_response = client.get(
-                        f"{BASE_URL}/url-scraper/{job_id}",
+                        f"{BASE_URL}/ai/jobs/{workflow_id}",
                         headers={"X-API-Key": api_key, "X-Source": "dify"}
                     )
 
                     if result_response.status_code != 200:
                         continue
 
-                    result = result_response.json()
-                    status = result.get("status")
+                    job = result_response.json()
+                    status = job.get("status")
 
                     if status == "completed":
+                        result = job.get("result", job)
                         yield self.create_json_message(result)
                         return
-                    elif status == "failed":
-                        error = result.get("error", "Unknown error")
-                        yield self.create_text_message(f"Scraping failed: {error}")
+                    elif status in ("failed", "timed_out"):
+                        error = job.get("error", "Unknown error")
+                        yield self.create_text_message(f"Browser task {status}: {error}")
                         return
 
-                yield self.create_text_message("Error: Job timed out. Please try again.")
+                yield self.create_text_message("Error: Browser task timed out after 6 minutes of polling.")
 
         except httpx.TimeoutException:
             yield self.create_text_message("Error: Request timeout")

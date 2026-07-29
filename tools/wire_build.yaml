@@ -1,0 +1,96 @@
+identity:
+  name: "wire_build"
+  author: "anakin"
+  label:
+    en_US: "Wire Build"
+    zh_Hans: "Wire构建请求"
+    pt_BR: "Construir Ação Wire"
+    ja_JP: "Wireビルド"
+description:
+  human:
+    en_US: "Request a brand-new Wire action for a website not yet in the catalog. Wire generates and auto-tests a scraper, then publishes it. Asynchronous and charges credits, refunded automatically if the build fails."
+    zh_Hans: "为目录中尚未收录的网站请求构建全新的Wire动作。Wire会自动生成并测试抓取器，然后发布。此过程为异步，会消耗积分，若构建失败则自动退还。"
+    pt_BR: "Solicite uma nova ação Wire para um site ainda não presente no catálogo. Wire gera e testa automaticamente um scraper, depois o publica. Assíncrono e cobra créditos, reembolsados automaticamente se a construção falhar."
+    ja_JP: "カタログにまだ存在しないウェブサイト向けに、新しいWireアクションの作成をリクエストします。Wireはスクレイパーを生成して自動テストし、公開します。非同期処理で、クレジットが課金されます（構築が失敗した場合は自動的に返金されます）。"
+  llm: "Request a brand-new Wire action for a website that isn't in the catalog yet. Describe the site (website_url) and what the action should do or extract (goal); Wire generates and auto-tests a scraper, then publishes it. Asynchronous (returns status \"pending\") and charges credits, refunded automatically if the build fails. Only use this after wire_discover / wire_catalog confirm no existing action covers the site. Does not build payment or fund-transfer actions; such requests are refused server-side."
+parameters:
+  - name: website_url
+    type: string
+    required: true
+    label:
+      en_US: "Website URL"
+      zh_Hans: "网站URL"
+      pt_BR: "URL do Site"
+      ja_JP: "ウェブサイトURL"
+    human_description:
+      en_US: "The site to build an action for. The domain is extracted automatically."
+      zh_Hans: "要为其构建动作的网站。域名将自动提取。"
+      pt_BR: "O site para o qual construir uma ação. O domínio é extraído automaticamente."
+      ja_JP: "アクションを構築する対象のサイト。ドメインは自動的に抽出されます"
+    llm_description: "The website to build a new Wire action for. The domain is extracted automatically."
+    form: llm
+  - name: goal
+    type: string
+    required: true
+    label:
+      en_US: "Goal"
+      zh_Hans: "目标"
+      pt_BR: "Objetivo"
+      ja_JP: "目標"
+    human_description:
+      en_US: "Natural-language description of what the action should do or extract"
+      zh_Hans: "该动作应执行或提取内容的自然语言描述"
+      pt_BR: "Descrição em linguagem natural do que a ação deve fazer ou extrair"
+      ja_JP: "アクションが何を行うか、または何を抽出するかの自然言語による説明"
+    llm_description: "Natural-language description of what the action should do or extract. Be specific — the builder synthesizes the scraper from this."
+    form: llm
+  - name: catalog_id
+    type: string
+    required: false
+    label:
+      en_US: "Catalog ID"
+      zh_Hans: "目录ID"
+      pt_BR: "ID do Catálogo"
+      ja_JP: "カタログID"
+    human_description:
+      en_US: "Optional — attach to an existing catalog instead of creating one"
+      zh_Hans: "可选 — 附加到现有目录，而不是新建目录"
+      pt_BR: "Opcional — anexar a um catálogo existente em vez de criar um novo"
+      ja_JP: "任意 — 新規作成ではなく既存のカタログに紐付ける"
+    llm_description: "Optional catalog ID to attach the new action to an existing catalog instead of creating one."
+    form: form
+  - name: visibility
+    type: string
+    required: false
+    default: "private"
+    label:
+      en_US: "Visibility"
+      zh_Hans: "可见性"
+      pt_BR: "Visibilidade"
+      ja_JP: "公開範囲"
+    human_description:
+      en_US: "Action visibility: \"private\" or \"public\" (default: private)"
+      zh_Hans: "动作可见性：\"private\"（私有）或\"public\"（公开）（默认：private）"
+      pt_BR: "Visibilidade da ação: \"private\" ou \"public\" (padrão: private)"
+      ja_JP: "アクションの公開範囲：「private」または「public」（デフォルト：private）"
+    llm_description: "Action visibility, either \"private\" or \"public\". Defaults to private."
+    form: form
+  - name: force
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Force"
+      zh_Hans: "强制"
+      pt_BR: "Forçar"
+      ja_JP: "強制"
+    human_description:
+      en_US: "Build even if similar actions already exist for the domain"
+      zh_Hans: "即使该域名已存在类似动作，仍强制构建"
+      pt_BR: "Construir mesmo que ações semelhantes já existam para o domínio"
+      ja_JP: "そのドメインに類似アクションが既に存在していても構築を強制する"
+    llm_description: "Set to true to build even if similar actions already exist for the domain. Otherwise the request is rejected with ACTION_EXISTS."
+    form: form
+extra:
+  python:
+    source: tools/wire_build.py

@@ -48,6 +48,7 @@ tools:
   - tools/wire_identities.yaml
   - tools/wire_login.yaml
   - tools/wire_build.yaml
+  - tools/wire_build_status.yaml
   - tools/monitor_create.yaml
   - tools/monitor_list.yaml
   - tools/monitor_changes.yaml

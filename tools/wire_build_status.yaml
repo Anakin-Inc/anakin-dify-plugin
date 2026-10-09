@@ -1,0 +1,100 @@
+identity:
+  name: "wire_build_status"
+  author: "anakin"
+  label:
+    en_US: "Wire Build Status"
+    zh_Hans: "Wire构建状态"
+    pt_BR: "Status da Construção Wire"
+    ja_JP: "Wireビルドステータス"
+description:
+  human:
+    en_US: "Check on Wire builds started with Wire Build: a build's status, the actions it published, and anything it skipped. Omit the ID to list recent builds. Read-only; spends no credits."
+    zh_Hans: "查看通过Wire构建请求发起的构建：构建状态、已发布的动作以及被跳过的内容。不填ID则列出最近的构建。只读操作，不消耗积分。"
+    pt_BR: "Acompanhe construções Wire iniciadas com Construir Ação Wire: o status, as ações publicadas e o que foi ignorado. Omita o ID para listar construções recentes. Somente leitura; não consome créditos."
+    ja_JP: "Wireビルドで開始したビルドを確認します：ステータス、公開されたアクション、スキップされた項目。IDを省略すると最近のビルドを一覧表示します。読み取り専用で、クレジットは消費しません。"
+  llm: "Check on Wire builds started with wire_build. Pass the id from wire_build's build_request to get that build's full detail: its status (\"pending\"/\"processing\" means still running, poll again after ~30s), the published actions (each with the action_id to run it via wire_read_action / wire_write_action), the skipped list (capabilities the build could not deliver; always check it, delivery may be partial), and the catalog_slug once an action has published. Omit id to list your recent build requests instead, optionally filtered by status. Read-only; spends no credits."
+parameters:
+  - name: id
+    type: string
+    required: false
+    label:
+      en_US: "Build Request ID"
+      zh_Hans: "构建请求ID"
+      pt_BR: "ID da Solicitação de Construção"
+      ja_JP: "ビルドリクエストID"
+    human_description:
+      en_US: "The build request ID returned by Wire Build. Leave empty to list recent builds."
+      zh_Hans: "Wire构建请求返回的构建请求ID。留空则列出最近的构建。"
+      pt_BR: "O ID da solicitação retornado por Construir Ação Wire. Deixe vazio para listar construções recentes."
+      ja_JP: "Wireビルドが返したビルドリクエストID。空欄にすると最近のビルドを一覧表示します。"
+    llm_description: "A build request id (from wire_build's build_request.id). Omit to list recent builds."
+    form: llm
+  - name: status
+    type: string
+    required: false
+    label:
+      en_US: "Status Filter"
+      zh_Hans: "状态筛选"
+      pt_BR: "Filtro de Status"
+      ja_JP: "ステータスフィルター"
+    human_description:
+      en_US: "List mode only: filter by status, e.g. pending, processing, success, failed"
+      zh_Hans: "仅列表模式：按状态筛选，例如 pending、processing、success、failed"
+      pt_BR: "Somente no modo lista: filtrar por status, ex.: pending, processing, success, failed"
+      ja_JP: "一覧モードのみ：ステータスで絞り込み（例：pending、processing、success、failed）"
+    llm_description: "List mode only. Filter by status, e.g. \"pending\", \"processing\", \"success\", \"failed\"."
+    form: llm
+  - name: limit
+    type: number
+    required: false
+    default: 10
+    min: 1
+    max: 100
+    label:
+      en_US: "Limit"
+      zh_Hans: "数量上限"
+      pt_BR: "Limite"
+      ja_JP: "件数上限"
+    human_description:
+      en_US: "List mode only: maximum builds per page (1-100, default 10)"
+      zh_Hans: "仅列表模式：每页最多返回的构建数（1-100，默认10）"
+      pt_BR: "Somente no modo lista: máximo de construções por página (1-100, padrão 10)"
+      ja_JP: "一覧モードのみ：1ページあたりの最大ビルド数（1〜100、デフォルト10）"
+    llm_description: "List mode only. Maximum builds to return per page, 1-100. Defaults to 10."
+    form: llm
+  - name: page
+    type: number
+    required: false
+    default: 1
+    min: 1
+    label:
+      en_US: "Page"
+      zh_Hans: "页码"
+      pt_BR: "Página"
+      ja_JP: "ページ"
+    human_description:
+      en_US: "List mode only: 1-based page number"
+      zh_Hans: "仅列表模式：页码，从1开始"
+      pt_BR: "Somente no modo lista: número da página, começando em 1"
+      ja_JP: "一覧モードのみ：ページ番号（1から開始）"
+    llm_description: "List mode only. 1-based page number, for paging past the first `limit` builds (see pagination.total in the result)."
+    form: llm
+  - name: include_events
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: "Include Events"
+      zh_Hans: "包含事件日志"
+      pt_BR: "Incluir Eventos"
+      ja_JP: "イベントを含める"
+    human_description:
+      en_US: "Detail mode only: include the build's step-by-step event log (verbose)"
+      zh_Hans: "仅详情模式：包含构建的逐步事件日志（内容较多）"
+      pt_BR: "Somente no modo detalhe: incluir o log de eventos passo a passo da construção (extenso)"
+      ja_JP: "詳細モードのみ：ビルドのステップごとのイベントログを含める（詳細）"
+    llm_description: "Detail mode only. Set to true to include the build's step-by-step event log. Verbose; leave false when polling."
+    form: form
+extra:
+  python:
+    source: tools/wire_build_status.py

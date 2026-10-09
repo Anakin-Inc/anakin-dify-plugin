@@ -51,8 +51,10 @@ Source must never be committed to the catalog fork. `anakin/anakin/` in the
 catalog holds packages; putting source there overwrites upstream's package
 directory.
 
-## Full toolset
+## Tool parity with the MCP server
 
-This plugin exposes five tools. The Anakin MCP server exposes twenty-one. Dify
-has supported MCP natively since v1.6.0, so users wanting the full surface can
-add `https://mcp.anakin.io/mcp` under **Tools → MCP** instead.
+The plugin mirrors the Anakin MCP server's tools (`anakin-mcp`), plus
+`url_scraper`/`batch_scraper` (split from MCP's `scrape`) and `web_scraper`.
+When a tool or parameter lands in `anakin-mcp`, add it here and cut a release;
+`tests/test_manifest.py` fails if a tool YAML is not registered in
+`provider/anakin.yaml`.

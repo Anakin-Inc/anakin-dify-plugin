@@ -8,11 +8,11 @@ identity:
     ja_JP: "Wireビルド"
 description:
   human:
-    en_US: "Request a brand-new Wire action for a website not yet in the catalog. Wire generates and auto-tests a scraper, then publishes it. Asynchronous and charges credits, refunded automatically if the build fails."
-    zh_Hans: "为目录中尚未收录的网站请求构建全新的Wire动作。Wire会自动生成并测试抓取器，然后发布。此过程为异步，会消耗积分，若构建失败则自动退还。"
-    pt_BR: "Solicite uma nova ação Wire para um site ainda não presente no catálogo. Wire gera e testa automaticamente um scraper, depois o publica. Assíncrono e cobra créditos, reembolsados automaticamente se a construção falhar."
-    ja_JP: "カタログにまだ存在しないウェブサイト向けに、新しいWireアクションの作成をリクエストします。Wireはスクレイパーを生成して自動テストし、公開します。非同期処理で、クレジットが課金されます（構築が失敗した場合は自動的に返金されます）。"
-  llm: "Request a brand-new Wire action for a website that isn't in the catalog yet. Describe the site (website_url) and what the action should do or extract (goal); Wire generates and auto-tests a scraper, then publishes it. Asynchronous (returns status \"pending\") and charges credits, refunded automatically if the build fails. Only use this after wire_discover / wire_catalog confirm no existing action covers the site. Does not build payment or fund-transfer actions; such requests are refused server-side."
+    en_US: "Request brand-new Wire actions for a website not yet in the catalog, optionally listing the capabilities to build, a proxy country, and a login credential. Wire generates and auto-tests the scrapers, then publishes them. Asynchronous; track progress with Wire Build Status. Charges credits, refunded automatically if the build fails."
+    zh_Hans: "为目录中尚未收录的网站请求构建全新的Wire动作，可指定要构建的功能、代理国家和登录凭据。Wire会自动生成并测试抓取器，然后发布。此过程为异步，可通过Wire构建状态跟踪进度。会消耗积分，若构建失败则自动退还。"
+    pt_BR: "Solicite novas ações Wire para um site ainda não presente no catálogo, opcionalmente listando as capacidades a construir, um país de proxy e uma credencial de login. Wire gera e testa automaticamente os scrapers, depois os publica. Assíncrono; acompanhe com Status da Construção Wire. Cobra créditos, reembolsados automaticamente se a construção falhar."
+    ja_JP: "カタログにまだ存在しないウェブサイト向けに、新しいWireアクションの作成をリクエストします。構築する機能、プロキシの国、ログイン認証情報を任意で指定できます。Wireはスクレイパーを生成して自動テストし、公開します。非同期処理で、進捗はWireビルドステータスで確認できます。クレジットが課金されます（構築が失敗した場合は自動的に返金されます）。"
+  llm: "Request brand-new Wire actions for a website that isn't in the catalog yet (a full catalog build). Describe the site (website_url) and what to build (goal); optionally list the discrete capabilities as actions (each becomes its own action) and pin the proxy exit country. A login credential, when the user has configured one, builds actions behind a sign-in. Wire generates and auto-tests the scrapers, then publishes them. Asynchronous: the response's build_request carries an id and status \"pending\"; pass that id to wire_build_status to track it, and check its skipped list for anything the build could not deliver. Charges credits (login builds cost significantly more than public builds), refunded automatically if the build fails. Only use this after wire_discover / wire_catalog confirm no existing action covers the site. Does not build payment or fund-transfer actions; such requests are refused server-side."
 parameters:
   - name: website_url
     type: string
@@ -90,6 +90,51 @@ parameters:
       pt_BR: "Construir mesmo que ações semelhantes já existam para o domínio"
       ja_JP: "そのドメインに類似アクションが既に存在していても構築を強制する"
     llm_description: "Set to true to build even if similar actions already exist for the domain. Otherwise the request is rejected with ACTION_EXISTS."
+    form: form
+  - name: actions
+    type: string
+    required: false
+    label:
+      en_US: "Actions"
+      zh_Hans: "动作列表"
+      pt_BR: "Ações"
+      ja_JP: "アクション"
+    human_description:
+      en_US: "Optional capabilities to build, each as its own action: a JSON array, or one per line (e.g. search products / get product details)"
+      zh_Hans: "可选：要构建的功能，每项成为一个独立动作：JSON数组，或每行一项（例如 search products / get product details）"
+      pt_BR: "Opcional: capacidades a construir, cada uma como ação própria: um array JSON ou uma por linha (ex.: search products / get product details)"
+      ja_JP: "任意：構築する機能（それぞれが個別のアクションになります）。JSON配列、または1行に1つ（例：search products / get product details）"
+    llm_description: "Optional discrete capabilities to build, each as its own action, as a JSON array of strings, e.g. [\"search products\", \"get product details\"]. A single capability may be given as plain text. Omit to let the builder infer the capabilities from goal."
+    form: llm
+  - name: country
+    type: string
+    required: false
+    label:
+      en_US: "Country"
+      zh_Hans: "国家"
+      pt_BR: "País"
+      ja_JP: "国"
+    human_description:
+      en_US: "Optional 2-letter country code (e.g. US); the scraper is built and tested through an exit IP in that country"
+      zh_Hans: "可选：两位国家代码（例如 US）；抓取器将通过该国家的出口IP构建和测试"
+      pt_BR: "Opcional: código de país de 2 letras (ex.: US); o scraper é construído e testado por um IP de saída nesse país"
+      ja_JP: "任意：2文字の国コード（例：US）。その国の出口IPを通じてスクレイパーを構築・テストします"
+    llm_description: "Optional 2-letter country code (e.g. \"US\"). The scraper is built and tested through an exit IP in that country. Use when the site geo-gates its content."
+    form: llm
+  - name: credential
+    type: secret-input
+    required: false
+    label:
+      en_US: "Login Credential"
+      zh_Hans: "登录凭据"
+      pt_BR: "Credencial de Login"
+      ja_JP: "ログイン認証情報"
+    human_description:
+      en_US: "Optional, for building actions behind a sign-in (costs significantly more credits). JSON: {\"type\": \"plain\", \"username\": \"...\", \"password\": \"...\"} or {\"type\": \"vault\", \"source_id\": \"...\", \"source_ref\": {...}}; either may add \"login_url\". The password is used once to sign in and is never stored."
+      zh_Hans: "可选：用于构建需要登录的动作（消耗明显更多积分）。JSON：{\"type\": \"plain\", \"username\": \"...\", \"password\": \"...\"} 或 {\"type\": \"vault\", \"source_id\": \"...\", \"source_ref\": {...}}；均可添加 \"login_url\"。密码仅用于一次登录，不会被存储。"
+      pt_BR: "Opcional, para construir ações que exigem login (custa significativamente mais créditos). JSON: {\"type\": \"plain\", \"username\": \"...\", \"password\": \"...\"} ou {\"type\": \"vault\", \"source_id\": \"...\", \"source_ref\": {...}}; ambos podem incluir \"login_url\". A senha é usada uma vez para entrar e nunca é armazenada."
+      ja_JP: "任意：サインインが必要なアクションを構築する場合に使用（クレジット消費が大幅に増えます）。JSON：{\"type\": \"plain\", \"username\": \"...\", \"password\": \"...\"} または {\"type\": \"vault\", \"source_id\": \"...\", \"source_ref\": {...}}。どちらも \"login_url\" を追加できます。パスワードはサインインに一度だけ使われ、保存されません。"
+    llm_description: "Login credential configured by the user for a login build. Not set by the model."
     form: form
 extra:
   python:

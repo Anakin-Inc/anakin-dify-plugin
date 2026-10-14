@@ -41,3 +41,19 @@ def test_tool_yaml_is_fully_translated(path):
 
 def test_tool_count():
     assert len(REGISTERED) == 24
+
+
+MANIFEST = yaml.safe_load((ROOT / "manifest.yaml").read_text())
+
+
+def test_manifest_has_marketplace_metadata():
+    # The dify-plugins Pre Check rejects packages without these (PR #3269).
+    assert MANIFEST["repo"] == "https://github.com/Anakin-Inc/anakin-dify-plugin"
+    assert MANIFEST["contact"] == "support@anakin.io"
+    assert MANIFEST["privacy"] == "PRIVACY.md"
+    assert MANIFEST["meta"]["minimum_dify_version"]
+    assert MANIFEST["network"]["domains"] == ["api.anakin.io"]
+
+
+def test_readme_version_matches_manifest():
+    assert f"**Version:** {MANIFEST['version']}" in (ROOT / "README.md").read_text()
